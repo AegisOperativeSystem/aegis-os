@@ -1,0 +1,7 @@
+/target
+/out
+/work
+**/*.iso
+**/*.pkg.tar.zst
+**/*.pkg.tar.zst.sig
+.DS_Store

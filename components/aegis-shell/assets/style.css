@@ -1,0 +1,61 @@
+window {
+  background-color: #101216;
+  color: #e7ecf3;
+  font-family: "Noto Sans", sans-serif;
+  font-size: 13px;
+}
+
+.panel {
+  background-color: #101216;
+}
+
+.panel-box {
+  background-color: #101216;
+  border-bottom: 1px solid #243040;
+}
+
+button {
+  background: transparent;
+  color: #e7ecf3;
+  border: none;
+  border-radius: 6px;
+  padding: 2px 10px;
+  min-height: 24px;
+}
+
+button:hover {
+  background-color: #1c2430;
+}
+
+button.danger:hover {
+  background-color: #3a2024;
+  color: #f07178;
+}
+
+.clock {
+  color: #c5d0de;
+  padding: 0 12px;
+  font-feature-settings: "tnum";
+}
+
+.brand {
+  color: #7dd3c0;
+  padding-left: 12px;
+  font-weight: 600;
+}
+
+entry, textview, combobox {
+  background-color: #161b22;
+  color: #e7ecf3;
+  border: 1px solid #243040;
+  border-radius: 6px;
+}
+
+label.title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+label.muted {
+  color: #8b95a7;
+}

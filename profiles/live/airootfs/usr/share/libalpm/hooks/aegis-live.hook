@@ -1,0 +1,11 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = greetd
+
+[Action]
+Description = Enabling the Aegis live session
+When = PostTransaction
+Exec = /usr/bin/systemctl enable greetd.service NetworkManager.service aegis-live-setup.service
+Depends = systemd

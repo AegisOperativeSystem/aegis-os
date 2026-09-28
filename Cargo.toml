@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [
+  "components/aegis-common",
+  "components/aegis-shell",
+  "components/aegis-installer",
+  "components/aegis-pkg",
+]
+default-members = ["components/aegis-common"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-only"
+repository = "https://github.com/AegisOperativeSystem/aegis-os"
+
+[workspace.dependencies]
+gtk4 = "0.11"
+gtk4-layer-shell = "0.8"
+aegis-common = { path = "components/aegis-common" }

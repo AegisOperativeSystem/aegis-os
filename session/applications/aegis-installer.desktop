@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Install Aegis OS
+Comment=Install the live system to disk
+Exec=pkexec aegis-installer
+Icon=system-software-install
+Terminal=false
+Type=Application
+Categories=System;

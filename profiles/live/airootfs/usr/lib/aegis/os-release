@@ -1,0 +1,7 @@
+NAME="Aegis OS"
+PRETTY_NAME="Aegis OS"
+ID=aegis
+ID_LIKE=arch
+HOME_URL="https://github.com/AegisOperativeSystem/aegis-os"
+DOCUMENTATION_URL="https://github.com/AegisOperativeSystem/aegis-os/blob/main/docs/integration.md"
+LOGO=aegis

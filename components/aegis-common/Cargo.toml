@@ -1,0 +1,11 @@
+[package]
+name = "aegis-common"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Shared planning, validation, and package logic for Aegis OS"
+
+[[bin]]
+name = "aegis-install-plan"
+path = "src/bin/aegis-install-plan.rs"

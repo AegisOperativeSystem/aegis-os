@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Aegis Packages
+Comment=Install and remove Aegis packages
+Exec=aegis-pkg
+Icon=system-software-install
+Terminal=false
+Type=Application
+Categories=System;PackageManager;

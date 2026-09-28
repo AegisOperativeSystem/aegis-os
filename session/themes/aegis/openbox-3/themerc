@@ -1,0 +1,16 @@
+border.width: 1
+padding.width: 8
+padding.height: 4
+window.active.border.color: #243040
+window.inactive.border.color: #1a1f27
+window.active.title.bg.color: #101216
+window.inactive.title.bg.color: #101216
+window.active.label.text.color: #e7ecf3
+window.inactive.label.text.color: #8b95a7
+window.active.title.bg: Flat Solid
+window.inactive.title.bg: Flat Solid
+menu.items.bg.color: #101216
+menu.items.text.color: #e7ecf3
+menu.items.active.bg.color: #1c2430
+osd.bg.color: #101216
+osd.label.text.color: #e7ecf3

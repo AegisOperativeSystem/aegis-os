@@ -1,0 +1,34 @@
+name: iso
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the live ISO
+        run: |
+          docker run --rm --privileged \
+            -v "$PWD":/src \
+            -w /src \
+            -e AEGIS_OS_PATH=/src \
+            archlinux:base-devel \
+            bash -lc 'pacman -Syu --noconfirm --needed archiso base-devel rust cargo sudo git pkgconf gtk4 gtk4-layer-shell && ./scripts/build-iso.sh'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aegis-iso
+          path: out/*.iso
+          retention-days: 14
+      - name: Publish the ISO to the GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.iso
+          generate_release_notes: true

@@ -1,0 +1,14 @@
+[Unit]
+Description=Prepare the Aegis live user
+Before=greetd.service
+DefaultDependencies=no
+After=systemd-tmpfiles-setup.service
+ConditionPathExists=/etc/aegis-live
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/aegis-live-setup
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

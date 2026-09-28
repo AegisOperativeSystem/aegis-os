@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<labwc_config>
+  <core>
+    <gap>0</gap>
+  </core>
+  <theme>
+    <name>aegis</name>
+    <cornerRadius>0</cornerRadius>
+    <titlebar>
+      <layout>icon:iconify,max,close</layout>
+    </titlebar>
+  </theme>
+  <keyboard>
+    <keybind key="W-Return">
+      <action name="Execute" command="foot"/>
+    </keybind>
+    <keybind key="W-q">
+      <action name="Close"/>
+    </keybind>
+    <keybind key="A-F4">
+      <action name="Close"/>
+    </keybind>
+  </keyboard>
+</labwc_config>

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Aegis
+Comment=Aegis desktop session
+Exec=aegis-session
+Type=Application
+DesktopNames=Aegis
