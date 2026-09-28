@@ -1,0 +1,56 @@
+window.dock-window {
+  background-color: transparent;
+}
+
+.dock {
+  background-color: rgba(24, 27, 33, 0.94);
+  border: 1px solid rgba(231, 236, 243, 0.14);
+  border-radius: 24px;
+  padding: 8px;
+}
+
+.dock button {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  color: #e7ecf3;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 4px;
+}
+
+.dock button:hover {
+  background-color: rgba(125, 211, 192, 0.18);
+}
+
+.dock button:active {
+  background-color: rgba(125, 211, 192, 0.28);
+}
+
+.dock separator {
+  background-color: rgba(231, 236, 243, 0.18);
+  margin: 8px 4px;
+  min-width: 1px;
+}
+
+.apps {
+  background-color: #101216;
+  color: #e7ecf3;
+}
+
+.apps button {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  color: #e7ecf3;
+  padding: 8px;
+}
+
+.apps button:hover {
+  background-color: #1c2430;
+}
+
+.app-name {
+  color: #9aa3b5;
+  font-size: 12px;
+}

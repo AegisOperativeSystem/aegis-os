@@ -5,7 +5,9 @@ Aegis OS is three repositories. Each one has a single release artifact.
 ```text
 aegis-os
   components/aegis-common     pure install plan, validation, package parsing
-  components/aegis-shell      GTK4 layer-shell panel and launcher
+  components/aegis-shell      GTK4 layer-shell panel
+  components/aegis-dock       bottom dock and application grid
+  components/aegis-tour       first-run tour
   components/aegis-installer  GTK4 live installer
   components/aegis-pkg        GTK4 client for the aegis pacman repo
   session/                    labwc, theme, foot, Wayland session
@@ -28,7 +30,7 @@ aegis-pkgs
 
 ## Boot and session
 
-The ISO boots with `uefi.systemd-boot` only. `aegis-live-setup` creates the passwordless `live` user and greetd starts `aegis-session` as that user. The session runs labwc. Labwc autostart paints the background, starts `aegis-shell`, and on the live image runs `pkexec aegis-installer`. A polkit rule lets `live` install without a password. The installed system uses `tuigreet` and does not autologin.
+The ISO boots with `uefi.systemd-boot` only. `aegis-live-setup` creates the passwordless `live` user and greetd starts `aegis-session` as that user. The session runs labwc. Labwc autostart paints the background, starts `aegis-shell` and `aegis-dock`, then runs `aegis-tour` until `~/.config/aegis/tour-done` exists. On the live image the installer starts after the tour. A polkit rule lets `live` install without a password. The installed system uses `tuigreet` and does not autologin.
 
 ## Installer
 

@@ -1,6 +1,8 @@
 pub mod desktop;
+pub mod dock;
 pub mod install;
 pub mod packages;
+pub mod tour;
 pub mod validate;
 
 pub const LIVE_MARKER: &str = "/etc/aegis-live";

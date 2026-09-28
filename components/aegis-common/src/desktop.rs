@@ -2,6 +2,7 @@
 pub struct DesktopEntry {
     pub name: String,
     pub exec: String,
+    pub icon: String,
     pub terminal: bool,
     pub no_display: bool,
 }
@@ -10,6 +11,7 @@ pub fn parse_desktop_entry(text: &str) -> Option<DesktopEntry> {
     let mut in_entry = false;
     let mut name = None;
     let mut exec = None;
+    let mut icon = String::new();
     let mut terminal = false;
     let mut no_display = false;
     for line in text.lines() {
@@ -27,6 +29,7 @@ pub fn parse_desktop_entry(text: &str) -> Option<DesktopEntry> {
         match key {
             "Name" if name.is_none() => name = Some(value.trim().to_string()),
             "Exec" => exec = Some(clean_exec(value)),
+            "Icon" if icon.is_empty() => icon = value.trim().to_string(),
             "Terminal" => terminal = value.trim() == "true",
             "NoDisplay" | "Hidden" => no_display = value.trim() == "true",
             _ => {}
@@ -35,6 +38,7 @@ pub fn parse_desktop_entry(text: &str) -> Option<DesktopEntry> {
     Some(DesktopEntry {
         name: name?,
         exec: exec.filter(|item| !item.is_empty())?,
+        icon,
         terminal,
         no_display,
     })
@@ -74,6 +78,7 @@ mod tests {
         let entry = parse_desktop_entry(text).unwrap();
         assert_eq!(entry.name, "Files");
         assert_eq!(entry.exec, "foot -e sh");
+        assert!(entry.icon.is_empty());
         assert!(!entry.terminal);
     }
 
@@ -82,6 +87,7 @@ mod tests {
         let entry = DesktopEntry {
             name: "Htop".to_string(),
             exec: "htop".to_string(),
+            icon: "htop".to_string(),
             terminal: true,
             no_display: false,
         };

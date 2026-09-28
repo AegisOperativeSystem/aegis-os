@@ -283,6 +283,8 @@ pub fn default_packages(kernel_package: &str) -> Vec<String> {
         "hicolor-icon-theme".to_string(),
         "aegis-session".to_string(),
         "aegis-shell".to_string(),
+        "aegis-dock".to_string(),
+        "aegis-tour".to_string(),
         "aegis-pkg".to_string(),
         "aegis-mirrorlist".to_string(),
     ];

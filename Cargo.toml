@@ -3,13 +3,15 @@ resolver = "2"
 members = [
   "components/aegis-common",
   "components/aegis-shell",
+  "components/aegis-dock",
+  "components/aegis-tour",
   "components/aegis-installer",
   "components/aegis-pkg",
 ]
 default-members = ["components/aegis-common"]
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 license = "GPL-3.0-only"
 repository = "https://github.com/AegisOperativeSystem/aegis-os"

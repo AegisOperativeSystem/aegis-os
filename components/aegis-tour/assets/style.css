@@ -1,0 +1,60 @@
+window {
+  background-color: #101216;
+  color: #e7ecf3;
+  font-family: "Noto Sans", sans-serif;
+}
+
+.tour {
+  background-color: #101216;
+}
+
+.kicker {
+  color: #7dd3c0;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 650;
+}
+
+.body {
+  color: #9aa3b5;
+  font-size: 16px;
+}
+
+.dots {
+  color: #7dd3c0;
+  font-size: 18px;
+  letter-spacing: 6px;
+}
+
+button {
+  background-color: transparent;
+  border: 1px solid #2c333e;
+  border-radius: 999px;
+  color: #e7ecf3;
+  min-height: 44px;
+  min-width: 96px;
+  padding: 8px 20px;
+}
+
+button:hover {
+  background-color: #181b21;
+}
+
+button.suggested {
+  background-color: #7dd3c0;
+  border-color: #7dd3c0;
+  color: #10211e;
+  font-weight: 650;
+}
+
+button.suggested:hover {
+  background-color: #8fdecd;
+}
+
+button:disabled {
+  opacity: 0.4;
+}

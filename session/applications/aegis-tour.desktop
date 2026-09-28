@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Tour
+Comment=Introduction to the Aegis desktop
+Exec=aegis-tour
+Icon=help-about
+Terminal=false
+Categories=Utility;
+StartupNotify=true

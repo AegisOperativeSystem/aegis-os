@@ -1,6 +1,10 @@
 #!/bin/sh
 swaybg -c '#101216' >/dev/null 2>&1 &
 aegis-shell &
+aegis-dock &
+if [ ! -f "${HOME}/.config/aegis/tour-done" ]; then
+  aegis-tour
+fi
 if [ -f /etc/aegis-live ]; then
   pkexec aegis-installer &
 fi

@@ -1,0 +1,15 @@
+[package]
+name = "aegis-tour"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Aegis first-run tour"
+
+[[bin]]
+name = "aegis-tour"
+path = "src/main.rs"
+
+[dependencies]
+aegis-common.workspace = true
+gtk4.workspace = true
