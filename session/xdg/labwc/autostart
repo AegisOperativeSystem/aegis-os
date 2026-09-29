@@ -1,5 +1,11 @@
 #!/bin/sh
 swaybg -i /usr/share/aegis/background.png -m fill >/dev/null 2>&1 &
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl --user start pipewire.service wireplumber.service pipewire-pulse.service >/dev/null 2>&1 &
+fi
+if [ -x /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ]; then
+  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 >/dev/null 2>&1 &
+fi
 aegis-shell &
 aegis-dock &
 if [ ! -f "${HOME}/.config/aegis/tour-done" ]; then

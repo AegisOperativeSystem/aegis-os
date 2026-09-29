@@ -2,6 +2,7 @@ pub mod desktop;
 pub mod dock;
 pub mod install;
 pub mod packages;
+pub mod region;
 pub mod tour;
 pub mod validate;
 

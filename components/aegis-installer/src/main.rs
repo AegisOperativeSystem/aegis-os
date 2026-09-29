@@ -52,7 +52,7 @@ fn build_ui(app: &Application) {
     let title = Label::new(Some("Install Aegis OS"));
     title.add_css_class("title");
     title.set_xalign(0.0);
-    let steps = Label::new(Some(step_text(Page::Disk)));
+    let steps = Label::new(Some(step_text(Page::Language)));
     steps.add_css_class("steps");
     steps.set_xalign(0.0);
     root.append(&title);
@@ -132,20 +132,17 @@ fn build_ui(app: &Application) {
     let log = TextView::new();
     log.set_editable(false);
     log.set_monospace(true);
-    let status = Label::new(Some(if disks.is_empty() {
-        "No disk of at least 8 GiB was found"
-    } else {
-        "Ready"
-    }));
+    let status = Label::new(Some("Detecting keyboard and language"));
     status.set_xalign(0.0);
     status.set_wrap(true);
 
+    stack.add_named(&language_page(&keymap, &locale), Some("language"));
+    stack.add_named(&timezone_page(&timezone), Some("timezone"));
     stack.add_named(&disk_page(&disk_combo, &filesystem, &swap), Some("disk"));
     stack.add_named(
         &account_page(&hostname, &username, &password, &confirm),
         Some("account"),
     );
-    stack.add_named(&system_page(&timezone, &locale, &keymap), Some("system"));
     stack.add_named(&summary_page(&summary, &disk_confirm), Some("summary"));
     stack.add_named(&progress_page(&log), Some("progress"));
     root.append(&stack);
@@ -161,7 +158,7 @@ fn build_ui(app: &Application) {
     root.append(&controls);
     window.set_child(Some(&root));
 
-    let state = Rc::new(RefCell::new(Page::Disk));
+    let state = Rc::new(RefCell::new(Page::Language));
     let widgets = Widgets {
         stack: stack.clone(),
         disk_combo: disk_combo.clone(),
@@ -187,14 +184,16 @@ fn build_ui(app: &Application) {
     next.connect_clicked(move |_| advance(&forward, &page));
     let page = state.clone();
     back.connect_clicked(move |_| retreat(&backward, &page));
+    detect_region(&locale, &keymap, &timezone, &status);
     window.present();
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Page {
+    Language,
+    Timezone,
     Disk,
     Account,
-    System,
     Summary,
     Progress,
 }
@@ -253,16 +252,24 @@ fn account_page(hostname: &Entry, username: &Entry, password: &Entry, confirm: &
     page
 }
 
-fn system_page(timezone: &ComboBoxText, locale: &ComboBoxText, keymap: &ComboBoxText) -> Box {
+fn language_page(keymap: &ComboBoxText, locale: &ComboBoxText) -> Box {
+    let page = form();
+    page.append(&heading("Keyboard"));
+    page.append(keymap);
+    page.append(&heading("Language"));
+    page.append(locale);
+    page.append(&note(
+        "Filled in from your network location. Change them if the guess is wrong. The keyboard applies to the console and the desktop. The language is the installed locale.",
+    ));
+    page
+}
+
+fn timezone_page(timezone: &ComboBoxText) -> Box {
     let page = form();
     page.append(&heading("Timezone"));
     page.append(timezone);
-    page.append(&heading("Language"));
-    page.append(locale);
-    page.append(&heading("Keyboard"));
-    page.append(keymap);
     page.append(&note(
-        "The language is the installed locale. The keyboard applies to the console and to the desktop session.",
+        "Filled in from the same location. The clock and the installed system use this zone.",
     ));
     page
 }
@@ -291,6 +298,8 @@ fn progress_page(log: &TextView) -> Box {
 fn advance(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
     let current = *page.borrow();
     match current {
+        Page::Language => show(widgets, page, Page::Timezone),
+        Page::Timezone => show(widgets, page, Page::Disk),
         Page::Disk => {
             if widgets.disk_combo.active_id().is_none() {
                 widgets.status.set_text("Select a disk of at least 8 GiB");
@@ -299,25 +308,21 @@ fn advance(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
             widgets.status.set_text("Ready");
             show(widgets, page, Page::Account);
         }
-        Page::Account | Page::System => {
-            if let Err(err) = plan_from(widgets) {
-                widgets.status.set_text(&err);
-                return;
-            }
-            widgets.status.set_text("Ready");
-            let next = if current == Page::Account {
-                Page::System
-            } else {
-                if let Ok(plan) = plan_from(widgets) {
-                    widgets.summary.set_text(&format!(
-                        "{}\nFirmware {}",
-                        describe(&plan),
-                        firmware_name()
-                    ));
+        Page::Account => {
+            let plan = match plan_from(widgets) {
+                Ok(plan) => plan,
+                Err(err) => {
+                    widgets.status.set_text(&err);
+                    return;
                 }
-                Page::Summary
             };
-            show(widgets, page, next);
+            widgets.summary.set_text(&format!(
+                "{}\nFirmware {}",
+                describe(&plan),
+                firmware_name()
+            ));
+            widgets.status.set_text("Ready");
+            show(widgets, page, Page::Summary);
         }
         Page::Summary => {
             let Ok(plan) = plan_from(widgets) else {
@@ -340,19 +345,21 @@ fn advance(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
 
 fn retreat(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
     let previous = match *page.borrow() {
+        Page::Timezone => Page::Language,
+        Page::Disk => Page::Timezone,
         Page::Account => Page::Disk,
-        Page::System => Page::Account,
-        Page::Summary => Page::System,
-        Page::Disk | Page::Progress => return,
+        Page::Summary => Page::Account,
+        Page::Language | Page::Progress => return,
     };
     show(widgets, page, previous);
 }
 
 fn show(widgets: &Widgets, page: &Rc<RefCell<Page>>, next: Page) {
     let name = match next {
+        Page::Language => "language",
+        Page::Timezone => "timezone",
         Page::Disk => "disk",
         Page::Account => "account",
-        Page::System => "system",
         Page::Summary => "summary",
         Page::Progress => "progress",
     };
@@ -363,12 +370,48 @@ fn show(widgets: &Widgets, page: &Rc<RefCell<Page>>, next: Page) {
 
 fn step_text(page: Page) -> &'static str {
     match page {
-        Page::Disk => "1 of 4  ·  Disk",
-        Page::Account => "2 of 4  ·  Account",
-        Page::System => "3 of 4  ·  Region",
-        Page::Summary => "4 of 4  ·  Confirm",
+        Page::Language => "1 of 5  ·  Keyboard",
+        Page::Timezone => "2 of 5  ·  Timezone",
+        Page::Disk => "3 of 5  ·  Disk",
+        Page::Account => "4 of 5  ·  Account",
+        Page::Summary => "5 of 5  ·  Confirm",
         Page::Progress => "Installing",
     }
+}
+
+fn detect_region(locale: &ComboBoxText, keymap: &ComboBoxText, timezone: &ComboBoxText, status: &Label) {
+    let locale = locale.clone();
+    let keymap = keymap.clone();
+    let timezone = timezone.clone();
+    let status = status.clone();
+    thread::spawn(move || {
+        let Some(guess) = aegis_common::region::detect_region() else {
+            glib::idle_add_once(move || {
+                if status.text().as_str() == "Detecting keyboard and language" {
+                    status.set_text("Choose a keyboard and a language");
+                }
+            });
+            return;
+        };
+        glib::idle_add_once(move || {
+            if keymap.active_id().as_deref() == Some("us") {
+                keymap.set_active_id(Some(&guess.keymap));
+            }
+            if locale.active_id().as_deref() == Some("en_US.UTF-8") {
+                locale.set_active_id(Some(&guess.locale));
+            }
+            if timezone.active_id().as_deref() == Some("UTC") {
+                let id = guess.timezone.clone();
+                if !timezone.set_active_id(Some(&id)) {
+                    timezone.append(Some(&id), &id);
+                    timezone.set_active_id(Some(&id));
+                }
+            }
+            if status.text().as_str() == "Detecting keyboard and language" {
+                status.set_text(&format!("Detected {} · {}", guess.keymap, guess.locale));
+            }
+        });
+    });
 }
 
 fn firmware_name() -> &'static str {
@@ -453,13 +496,13 @@ fn describe(plan: &PlanInput) -> String {
         format!("{} GiB", plan.swap_gib)
     };
     format!(
-        "Disk {}\nHostname {}\nUser {}\nTimezone {}\nLanguage {}\nKeyboard {}\nFilesystem {}\nSwap {}\n\nThis destroys every partition on the disk.",
+        "Keyboard {}\nLanguage {}\nTimezone {}\nDisk {}\nHostname {}\nUser {}\nFilesystem {}\nSwap {}\n\nThis destroys every partition on the disk.",
+        plan.keymap,
+        plan.locale,
+        plan.timezone,
         plan.disk,
         plan.hostname,
         plan.username,
-        plan.timezone,
-        plan.locale,
-        plan.keymap,
         plan.filesystem,
         swap
     )

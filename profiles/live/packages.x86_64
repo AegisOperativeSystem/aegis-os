@@ -10,6 +10,7 @@ amd-ucode
 arch-install-scripts
 base
 btrfs-progs
+curl
 dosfstools
 e2fsprogs
 efibootmgr
@@ -38,6 +39,7 @@ pipewire-alsa
 pipewire-pulse
 polkit
 polkit-gnome
+rtkit
 sudo
 swaybg
 syslinux

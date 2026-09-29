@@ -5,12 +5,6 @@ export XDG_SESSION_TYPE=wayland
 export MOZ_ENABLE_WAYLAND=1
 export QT_QPA_PLATFORM=wayland
 export GDK_BACKEND=wayland
-if command -v /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 >/dev/null 2>&1; then
-  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-fi
-if ! pgrep -x pipewire >/dev/null 2>&1; then
-  pipewire &
-  wireplumber &
-  pipewire-pulse &
-fi
+export WLR_RENDERER=pixman
+export WLR_NO_HARDWARE_CURSORS=1
 exec labwc

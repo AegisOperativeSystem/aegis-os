@@ -292,7 +292,7 @@ pub fn build_actions(
         Action::Write {
             path: format!("{mnt}/home/{}/.config/labwc/environment", input.username),
             contents: format!(
-                "XKB_DEFAULT_LAYOUT={}\nXDG_CURRENT_DESKTOP=Aegis\nFOOT_CONFIG=/usr/share/aegis/foot.ini\n",
+                "WLR_RENDERER=pixman\nWLR_NO_HARDWARE_CURSORS=1\nXKB_DEFAULT_LAYOUT={}\nXDG_CURRENT_DESKTOP=Aegis\nFOOT_CONFIG=/usr/share/aegis/foot.ini\n",
                 input.keymap
             ),
             mode: 0o644,
@@ -404,6 +404,7 @@ pub fn default_packages(kernel_package: &str) -> Vec<String> {
         "xdg-desktop-portal-wlr".to_string(),
         "polkit".to_string(),
         "polkit-gnome".to_string(),
+        "rtkit".to_string(),
         "noto-fonts".to_string(),
         "adwaita-icon-theme".to_string(),
         "hicolor-icon-theme".to_string(),
