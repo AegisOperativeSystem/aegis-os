@@ -2,10 +2,10 @@
 Operation = Install
 Operation = Upgrade
 Type = Package
-Target = greetd
+Target = gdm
 
 [Action]
 Description = Enabling the Aegis live session
 When = PostTransaction
-Exec = /usr/bin/systemctl enable greetd.service NetworkManager.service aegis-live-setup.service
+Exec = /usr/bin/systemctl enable NetworkManager.service aegis-live-setup.service aegis-chooser.service aegis-gl.service
 Depends = systemd

@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+dir=/etc/environment.d
+file="${dir}/50-aegis-gl.conf"
+mkdir -p "${dir}"
+virt=$(systemd-detect-virt 2>/dev/null || true)
+case "${virt}" in
+  oracle | qemu | kvm | vmware)
+    printf '%s\n' \
+      'LIBGL_ALWAYS_SOFTWARE=1' \
+      'GALLIUM_DRIVER=llvmpipe' \
+      'MESA_LOADER_DRIVER_OVERRIDE=llvmpipe' \
+      'MUTTER_DEBUG_DISABLE_HW_CURSORS=1' \
+      >"${file}"
+    ;;
+  *)
+    rm -f "${file}"
+    ;;
+esac

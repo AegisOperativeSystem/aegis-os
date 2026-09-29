@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+action=desktop
+if [ -x /usr/bin/aegis-menu ]; then
+  action=$(/usr/bin/aegis-menu || true)
+fi
+case "${action}" in
+  install | repair | desktop) ;;
+  *) action=desktop ;;
+esac
+install -d -o live -g live /home/live/.config/aegis
+printf '%s\n' "${action}" >/home/live/.config/aegis/action
+chown live:live /home/live/.config/aegis/action
+if [ "${action}" = install ] || [ "${action}" = repair ]; then
+  : >/home/live/.config/gnome-tour-done
+  : >/home/live/.config/gnome-welcome-tour
+  chown live:live /home/live/.config/gnome-tour-done /home/live/.config/gnome-welcome-tour
+fi
+install -d /var/lib/AccountsService/users
+printf '%s\n' '[User]' 'Session=aegis' 'SystemAccount=false' >/var/lib/AccountsService/users/live
+printf '%s\n' '[daemon]' 'AutomaticLoginEnable=True' 'AutomaticLogin=live' >/etc/gdm/custom.conf
+systemd-run --collect --unit=aegis-gdm /bin/sh -c 'sleep 1; systemctl start gdm.service'

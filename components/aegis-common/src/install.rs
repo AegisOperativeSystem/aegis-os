@@ -317,6 +317,7 @@ pub fn build_actions(
                 "enable",
                 "NetworkManager.service",
                 "gdm.service",
+                "aegis-gl.service",
             ]),
             stdin: None,
         },

@@ -9,24 +9,27 @@ if [ -n "${layout}" ]; then
   export XKB_DEFAULT_LAYOUT="${layout}"
 fi
 
-virt=$(systemd-detect-virt 2>/dev/null || true)
-case "${virt}" in
-  oracle | qemu | kvm | vmware)
-    export LIBGL_ALWAYS_SOFTWARE=1
-    export GALLIUM_DRIVER=llvmpipe
-    export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
-    export MUTTER_DEBUG_DISABLE_HW_CURSORS=1
-    ;;
-esac
+if [ -f /etc/environment.d/50-aegis-gl.conf ]; then
+  # shellcheck disable=SC1091
+  set -a
+  . /etc/environment.d/50-aegis-gl.conf
+  set +a
+fi
 
 export GDK_BACKEND=wayland,x11
 export QT_QPA_PLATFORM=wayland
 export MOZ_ENABLE_WAYLAND=1
 
-if [ "${AEGIS_ACTION:-}" = install ] || [ "${AEGIS_ACTION:-}" = repair ]; then
-  mkdir -p "${HOME}/.config"
-  : >"${HOME}/.config/gnome-tour-done"
-  : >"${HOME}/.config/gnome-welcome-tour"
+names=
+for name in LIBGL_ALWAYS_SOFTWARE GALLIUM_DRIVER MESA_LOADER_DRIVER_OVERRIDE MUTTER_DEBUG_DISABLE_HW_CURSORS XKB_DEFAULT_LAYOUT GDK_BACKEND QT_QPA_PLATFORM MOZ_ENABLE_WAYLAND; do
+  eval "value=\${${name}-}"
+  if [ -n "${value}" ]; then
+    names="${names} ${name}"
+  fi
+done
+if [ -n "${names}" ]; then
+  # shellcheck disable=SC2086
+  systemctl --user import-environment ${names} || true
 fi
 
 exec gnome-session --session=gnome

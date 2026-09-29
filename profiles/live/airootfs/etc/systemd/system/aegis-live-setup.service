@@ -1,6 +1,6 @@
 [Unit]
 Description=Prepare the Aegis live user
-Before=greetd.service
+Before=aegis-chooser.service
 DefaultDependencies=no
 After=systemd-tmpfiles-setup.service
 ConditionPathExists=/etc/aegis-live

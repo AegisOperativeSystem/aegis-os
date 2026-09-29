@@ -1,0 +1,13 @@
+[Unit]
+Description=Aegis graphics profile
+Before=gdm.service aegis-chooser.service
+DefaultDependencies=no
+After=systemd-udevd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/aegis-gl
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

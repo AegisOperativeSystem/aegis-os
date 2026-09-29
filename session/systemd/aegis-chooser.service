@@ -1,0 +1,20 @@
+[Unit]
+Description=Aegis live menu
+After=aegis-live-setup.service aegis-gl.service systemd-user-sessions.service
+Before=getty@tty1.service
+Conflicts=getty@tty1.service
+ConditionPathExists=/etc/aegis-live
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/aegis-chooser
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

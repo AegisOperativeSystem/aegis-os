@@ -1,5 +1,9 @@
 #!/bin/sh
-case "${AEGIS_ACTION:-}" in
+action=
+if [ -f "${HOME}/.config/aegis/action" ]; then
+  action=$(head -n 1 "${HOME}/.config/aegis/action")
+fi
+case "${action}" in
   install) exec pkexec aegis-installer ;;
   repair) exec pkexec aegis-installer --repair ;;
 esac

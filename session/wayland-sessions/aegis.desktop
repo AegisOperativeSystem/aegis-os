@@ -2,5 +2,7 @@
 Name=Aegis
 Comment=Aegis OS
 Exec=/usr/bin/aegis-desktop
+TryExec=/usr/bin/aegis-desktop
 Type=Application
 DesktopNames=GNOME
+X-GDM-SessionRegisters=true
