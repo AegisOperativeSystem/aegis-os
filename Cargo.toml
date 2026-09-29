@@ -11,12 +11,12 @@ members = [
 default-members = ["components/aegis-common"]
 
 [workspace.package]
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 license = "GPL-3.0-only"
 repository = "https://github.com/AegisOperativeSystem/aegis-os"
 
 [workspace.dependencies]
-gtk4 = "0.11"
+gtk4 = { version = "0.11", features = ["v4_12"] }
 gtk4-layer-shell = "0.8"
 aegis-common = { path = "components/aegis-common" }

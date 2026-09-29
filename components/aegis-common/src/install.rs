@@ -136,15 +136,42 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
             argv: vec!["mount".to_string(), esp, format!("{mnt}/boot")],
             stdin: None,
         },
-        Action::Command {
-            argv: {
-                let mut pacstrap = vec!["pacstrap".to_string(), "-K".to_string(), mnt.to_string()];
-                pacstrap.extend(default_packages(kernel_package));
-                pacstrap
-            },
-            stdin: None,
-        },
     ];
+    if input.swap_gib > 0 {
+        let swap = format!("{mnt}/swapfile");
+        let size = format!("{}G", input.swap_gib);
+        actions.extend([
+            Action::Command {
+                argv: vec![
+                    "fallocate".to_string(),
+                    "-l".to_string(),
+                    size,
+                    swap.clone(),
+                ],
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["chmod".to_string(), "600".to_string(), swap.clone()],
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["mkswap".to_string(), swap.clone()],
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["swapon".to_string(), swap],
+                stdin: None,
+            },
+        ]);
+    }
+    actions.push(Action::Command {
+        argv: {
+            let mut pacstrap = vec!["pacstrap".to_string(), "-K".to_string(), mnt.to_string()];
+            pacstrap.extend(default_packages(kernel_package));
+            pacstrap
+        },
+        stdin: None,
+    });
     actions.push(Action::AppendCommand {
         argv: vec!["genfstab".to_string(), "-U".to_string(), mnt.to_string()],
         path: format!("{mnt}/etc/fstab"),
@@ -162,12 +189,17 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
         },
         Action::Write {
             path: format!("{mnt}/etc/locale.conf"),
-            contents: "LANG=en_US.UTF-8\n".to_string(),
+            contents: format!("LANG={}\n", input.locale),
             mode: 0o644,
         },
         Action::Write {
             path: format!("{mnt}/etc/locale.gen"),
-            contents: "en_US.UTF-8 UTF-8\n".to_string(),
+            contents: format!("{} UTF-8\n", input.locale),
+            mode: 0o644,
+        },
+        Action::Write {
+            path: format!("{mnt}/etc/vconsole.conf"),
+            contents: format!("KEYMAP={}\n", input.keymap),
             mode: 0o644,
         },
         Action::Write {
@@ -206,6 +238,23 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
                 "-s",
                 "/bin/bash",
                 &input.username,
+            ]),
+            stdin: None,
+        },
+        Action::Write {
+            path: format!("{mnt}/home/{}/.config/labwc/environment", input.username),
+            contents: format!(
+                "XKB_DEFAULT_LAYOUT={}\nXDG_CURRENT_DESKTOP=Aegis\n",
+                input.keymap
+            ),
+            mode: 0o644,
+        },
+        Action::Command {
+            argv: chroot(&[
+                "chown",
+                "-R",
+                &format!("{}:{}", input.username, input.username),
+                &format!("/home/{}/.config", input.username),
             ]),
             stdin: None,
         },
@@ -264,6 +313,17 @@ pub fn default_packages(kernel_package: &str) -> Vec<String> {
         "e2fsprogs".to_string(),
         "btrfs-progs".to_string(),
         "foot".to_string(),
+        "firefox".to_string(),
+        "nautilus".to_string(),
+        "gnome-text-editor".to_string(),
+        "loupe".to_string(),
+        "evince".to_string(),
+        "gnome-calculator".to_string(),
+        "gnome-disk-utility".to_string(),
+        "baobab".to_string(),
+        "file-roller".to_string(),
+        "pavucontrol".to_string(),
+        "xdg-user-dirs".to_string(),
         "labwc".to_string(),
         "swaybg".to_string(),
         "gtk4".to_string(),
@@ -490,6 +550,9 @@ mod tests {
             password: "correcthorsebattery".to_string(),
             timezone: "Europe/Rome".to_string(),
             filesystem: Filesystem::Ext4,
+            locale: "en_US.UTF-8".to_string(),
+            keymap: "us".to_string(),
+            swap_gib: 0,
         }
     }
 
@@ -506,6 +569,36 @@ mod tests {
         assert!(!rendered.contains("correcthorsebattery"));
         assert!(rendered.contains("mkfs.ext4 -F -L aegis /dev/vda2"));
         assert!(rendered.contains("/dev/vda1"));
+        assert!(actions.iter().any(|action| matches!(
+            action,
+            Action::Write { path, contents, .. }
+                if path.ends_with("/etc/locale.gen") && contents.contains("en_US.UTF-8")
+        )));
+    }
+
+    #[test]
+    fn swap_plan_creates_a_swapfile() {
+        let mut input = sample();
+        input.swap_gib = 4;
+        input.locale = "it_IT.UTF-8".to_string();
+        input.keymap = "it".to_string();
+        let actions = build_actions(&input, "linux").unwrap();
+        let rendered = actions
+            .iter()
+            .map(|action| action.to_string())
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(rendered.contains("fallocate -l 4G /mnt/swapfile"));
+        assert!(rendered.contains("mkswap /mnt/swapfile"));
+        assert!(rendered.contains("swapon /mnt/swapfile"));
+        assert!(actions.iter().any(|action| matches!(
+            action,
+            Action::Write { contents, .. } if contents.contains("KEYMAP=it")
+        )));
+        assert!(actions.iter().any(|action| matches!(
+            action,
+            Action::Write { contents, .. } if contents.contains("LANG=it_IT.UTF-8")
+        )));
     }
 
     #[test]

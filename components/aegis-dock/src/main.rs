@@ -2,6 +2,7 @@ use aegis_common::desktop::{command_argv, parse_desktop_entry, DesktopEntry};
 use aegis_common::dock::dock_favorites;
 use aegis_common::LIVE_MARKER;
 use gtk4::gdk::Display;
+use gtk4::glib;
 use gtk4::prelude::*;
 use gtk4::{
     style_context_add_provider_for_display, Align, Application, ApplicationWindow, Box, Button,
@@ -166,8 +167,10 @@ fn spawn(argv: &[String]) {
 fn load_css() {
     let provider = CssProvider::new();
     let path = "/usr/share/aegis/dock/style.css";
-    if provider.load_from_path(path).is_err() {
-        provider.load_from_string(STYLE);
+    if Path::new(path).is_file() {
+        provider.load_from_path(path);
+    } else {
+        provider.load_from_bytes(&glib::Bytes::from_owned(STYLE.to_owned()));
     }
     if let Some(display) = Display::default() {
         style_context_add_provider_for_display(

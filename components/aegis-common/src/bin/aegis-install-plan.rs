@@ -19,6 +19,12 @@ fn main() {
         password: "plan-only-secret".to_string(),
         timezone,
         filesystem,
+        locale: args.next().unwrap_or_else(|| "en_US.UTF-8".to_string()),
+        keymap: args.next().unwrap_or_else(|| "us".to_string()),
+        swap_gib: args
+            .next()
+            .and_then(|value| value.parse().ok())
+            .unwrap_or(0),
     };
     match build_actions(&input, &kernel) {
         Ok(actions) => {

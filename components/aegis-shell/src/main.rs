@@ -1,5 +1,6 @@
 use aegis_common::desktop::{command_argv, parse_desktop_entry, DesktopEntry};
 use gtk4::gdk::Display;
+use gtk4::glib;
 use gtk4::prelude::*;
 use gtk4::{
     style_context_add_provider_for_display, Application, ApplicationWindow, Box, Button,
@@ -7,6 +8,7 @@ use gtk4::{
     STYLE_PROVIDER_PRIORITY_APPLICATION,
 };
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
+use std::path::Path;
 use std::process::Command;
 
 const STYLE: &str = include_str!("../assets/style.css");
@@ -138,8 +140,10 @@ fn spawn(argv: &[String]) {
 fn load_css() {
     let provider = CssProvider::new();
     let path = "/usr/share/aegis/shell/style.css";
-    if provider.load_from_path(path).is_err() {
-        provider.load_from_string(STYLE);
+    if Path::new(path).is_file() {
+        provider.load_from_path(path);
+    } else {
+        provider.load_from_bytes(&glib::Bytes::from_owned(STYLE.to_owned()));
     }
     if let Some(display) = Display::default() {
         style_context_add_provider_for_display(

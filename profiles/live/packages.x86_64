@@ -13,7 +13,14 @@ btrfs-progs
 dosfstools
 e2fsprogs
 efibootmgr
+baobab
+evince
+file-roller
+firefox
 foot
+gnome-calculator
+gnome-disk-utility
+gnome-text-editor
 gptfdisk
 greetd
 greetd-tuigreet
@@ -23,13 +30,16 @@ hicolor-icon-theme
 intel-ucode
 labwc
 linux
+loupe
 linux-firmware
 mkinitcpio
 mkinitcpio-archiso
 nano
+nautilus
 networkmanager
 noto-fonts
 parted
+pavucontrol
 pipewire
 pipewire-alsa
 pipewire-pulse
@@ -39,4 +49,5 @@ sudo
 swaybg
 wireplumber
 xdg-desktop-portal
+xdg-user-dirs
 xdg-desktop-portal-wlr

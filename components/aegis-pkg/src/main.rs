@@ -1,4 +1,5 @@
 use aegis_common::packages::{pacman_remove_args, pacman_sync_args, parse_pacman_sl, RepoPackage};
+use gtk4::glib;
 use gtk4::prelude::*;
 use gtk4::{
     Application, ApplicationWindow, Box, Button, Label, ListBox, Orientation, ScrolledWindow,

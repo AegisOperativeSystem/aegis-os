@@ -29,6 +29,9 @@ pub struct PlanInput {
     pub password: String,
     pub timezone: String,
     pub filesystem: Filesystem,
+    pub locale: String,
+    pub keymap: String,
+    pub swap_gib: u8,
 }
 
 pub fn validate_disk(disk: &str) -> Result<(), String> {
@@ -148,12 +151,48 @@ pub fn validate_timezone(timezone: &str) -> Result<(), String> {
     }
 }
 
+pub fn validate_locale(locale: &str) -> Result<(), String> {
+    const LOCALES: &[&str] = &[
+        "en_US.UTF-8",
+        "it_IT.UTF-8",
+        "de_DE.UTF-8",
+        "fr_FR.UTF-8",
+        "es_ES.UTF-8",
+        "pt_BR.UTF-8",
+    ];
+    if LOCALES.contains(&locale) {
+        Ok(())
+    } else {
+        Err("choose a listed language".to_string())
+    }
+}
+
+pub fn validate_keymap(keymap: &str) -> Result<(), String> {
+    const MAPS: &[&str] = &["us", "it", "de", "fr", "es", "gb"];
+    if MAPS.contains(&keymap) {
+        Ok(())
+    } else {
+        Err("choose a listed keyboard layout".to_string())
+    }
+}
+
+pub fn validate_swap(gib: u8) -> Result<(), String> {
+    if matches!(gib, 0 | 2 | 4) {
+        Ok(())
+    } else {
+        Err("swap must be 0, 2, or 4 GiB".to_string())
+    }
+}
+
 pub fn validate_plan(input: &PlanInput) -> Result<(), String> {
     validate_disk(&input.disk)?;
     validate_hostname(&input.hostname)?;
     validate_username(&input.username)?;
     validate_password(&input.password)?;
     validate_timezone(&input.timezone)?;
+    validate_locale(&input.locale)?;
+    validate_keymap(&input.keymap)?;
+    validate_swap(input.swap_gib)?;
     Ok(())
 }
 
@@ -195,5 +234,11 @@ mod tests {
         assert!(validate_timezone("Europe/Rome").is_ok());
         assert!(validate_timezone("UTC").is_ok());
         assert!(validate_timezone("../etc").is_err());
+        assert!(validate_locale("it_IT.UTF-8").is_ok());
+        assert!(validate_locale("C").is_err());
+        assert!(validate_keymap("it").is_ok());
+        assert!(validate_keymap("dvorak").is_err());
+        assert!(validate_swap(4).is_ok());
+        assert!(validate_swap(8).is_err());
     }
 }
