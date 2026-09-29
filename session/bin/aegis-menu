@@ -38,10 +38,14 @@ draw() {
     cols=${size##* }
   fi
   printf '\033[2J\033[H%s' "$hide" >"$tty"
+  if command -v setfont >/dev/null 2>&1; then
+    setfont ter-u16n >/dev/null 2>&1 || true
+  fi
+  printf '\033%%G' >"$tty"
   if [[ -f $logo ]]; then
-    while IFS= read -r line || [[ -n $line ]]; do
-      printf '%s%s%s\n' "$teal" "$(center "$line" "$cols")" "$reset" >"$tty"
-    done <"$logo"
+    printf '%s' "$teal" >"$tty"
+    cat "$logo" >"$tty"
+    printf '%s\n' "$reset" >"$tty"
   else
     printf '%s%s%s\n' "$teal" "$(center "AEGIS OS" "$cols")" "$reset" >"$tty"
   fi

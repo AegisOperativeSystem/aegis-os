@@ -43,6 +43,8 @@ polkit-gnome
 rtkit
 sudo
 swaybg
+terminus-font
+ttf-dejavu
 syslinux
 wireplumber
 xdg-desktop-portal

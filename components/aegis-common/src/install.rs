@@ -247,7 +247,7 @@ pub fn build_actions(
         },
         Action::Write {
             path: format!("{mnt}/etc/vconsole.conf"),
-            contents: format!("KEYMAP={}\n", input.keymap),
+            contents: format!("KEYMAP={}\nFONT=ter-u16n\n", input.keymap),
             mode: 0o644,
         },
         Action::Write {
@@ -393,6 +393,8 @@ pub fn default_packages(kernel_package: &str) -> Vec<String> {
         "xdg-user-dirs".to_string(),
         "labwc".to_string(),
         "swaybg".to_string(),
+        "terminus-font".to_string(),
+        "ttf-dejavu".to_string(),
         "gtk4".to_string(),
         "gtk4-layer-shell".to_string(),
         "greetd".to_string(),
