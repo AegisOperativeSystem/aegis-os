@@ -1,7 +1,7 @@
 NAME="Aegis OS"
 PRETTY_NAME="Aegis OS"
 ID=aegis
-ID_LIKE=arch
+ANSI_COLOR="1;36"
 BUILD_ID=live
 HOME_URL="https://github.com/AegisOperativeSystem/aegis-os"
 DOCUMENTATION_URL="https://github.com/AegisOperativeSystem/aegis-os/blob/main/docs/integration.md"

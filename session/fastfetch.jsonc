@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "file",
+    "source": "/usr/share/aegis/logo.txt",
+    "color": {
+      "1": "96"
+    },
+    "padding": {
+      "top": 1,
+      "right": 4
+    }
+  },
+  "display": {
+    "separator": "  ",
+    "color": "96"
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "de",
+    "wm",
+    "terminal",
+    "cpu",
+    "memory",
+    "break",
+    "colors"
+  ]
+}

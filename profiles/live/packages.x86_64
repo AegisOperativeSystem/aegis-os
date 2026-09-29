@@ -14,6 +14,7 @@ curl
 dosfstools
 e2fsprogs
 efibootmgr
+fastfetch
 foot
 gptfdisk
 greetd

@@ -1,0 +1,91 @@
+#!/bin/bash
+set -eu
+
+tty=/dev/tty
+logo=/usr/share/aegis/logo.txt
+choice=0
+options=("Install" "Repair" "Live desktop")
+blurbs=("Erase a disk and install Aegis OS" "Restore an existing Aegis installation" "Open the desktop and keep this session")
+keys=(install repair desktop)
+
+teal=$'\033[96m'
+ink=$'\033[30m'
+muted=$'\033[37m'
+text=$'\033[97m'
+bar=$'\033[30;46m'
+reset=$'\033[0m'
+hide=$'\033[?25l'
+show=$'\033[?25h'
+
+cleanup() {
+  printf '%s%s' "$show" "$reset" >"$tty"
+}
+trap cleanup EXIT INT TERM
+
+center() {
+  local line="$1" width="$2" pad
+  line=${line//\$1/}
+  pad=$(( (width - ${#line}) / 2 ))
+  if [ "$pad" -lt 0 ]; then
+    pad=0
+  fi
+  printf '%*s%s' "$pad" "" "$line"
+}
+
+draw() {
+  local cols=80 size line i
+  if size=$(stty size <"$tty" 2>/dev/null); then
+    cols=${size##* }
+  fi
+  printf '\033[2J\033[H%s' "$hide" >"$tty"
+  if [[ -f $logo ]]; then
+    while IFS= read -r line || [[ -n $line ]]; do
+      printf '%s%s%s\n' "$teal" "$(center "$line" "$cols")" "$reset" >"$tty"
+    done <"$logo"
+  else
+    printf '%s%s%s\n' "$teal" "$(center "AEGIS OS" "$cols")" "$reset" >"$tty"
+  fi
+  printf '\n%s%s%s\n\n' "$muted" "$(center "Choose what to do" "$cols")" "$reset" >"$tty"
+  for i in 0 1 2; do
+    if [[ $i -eq $choice ]]; then
+      printf '%s   %s   %s\n' "$bar" "${options[$i]}" "$reset" >"$tty"
+    else
+      printf '%s   %s%s\n' "$text" "${options[$i]}" "$reset" >"$tty"
+    fi
+    printf '%s     %s%s\n' "$muted" "${blurbs[$i]}" "$reset" >"$tty"
+  done
+  printf '\n%s%s%s\n' "$muted" "$(center "Up and down to move. Enter to confirm." "$cols")" "$reset" >"$tty"
+}
+
+read_key() {
+  local key rest
+  IFS= read -rsn1 key <"$tty" || key=
+  if [[ $key == $'\e' ]]; then
+    IFS= read -rsn2 -t 1 rest <"$tty" || rest=
+    printf '%s' "$key$rest"
+    return
+  fi
+  printf '%s' "$key"
+}
+
+draw
+while true; do
+  key=$(read_key || true)
+  case $key in
+    $'\e[A'|k|K) choice=$(( (choice + 2) % 3 )) ;;
+    $'\e[B'|j|J) choice=$(( (choice + 1) % 3 )) ;;
+    1) choice=0 ;;
+    2) choice=1 ;;
+    3) choice=2 ;;
+    ''|$'\n')
+      printf '%s\n' "${keys[$choice]}"
+      exit 0
+      ;;
+    *) continue ;;
+  esac
+  if [[ $key == 1 || $key == 2 || $key == 3 ]]; then
+    printf '%s\n' "${keys[$choice]}"
+    exit 0
+  fi
+  draw
+done

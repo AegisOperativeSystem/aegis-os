@@ -385,6 +385,7 @@ pub fn default_packages(kernel_package: &str) -> Vec<String> {
         "dosfstools".to_string(),
         "e2fsprogs".to_string(),
         "btrfs-progs".to_string(),
+        "fastfetch".to_string(),
         "foot".to_string(),
         "pcmanfm".to_string(),
         "mousepad".to_string(),

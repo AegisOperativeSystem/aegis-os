@@ -4,6 +4,9 @@ if ! id live >/dev/null 2>&1; then
   useradd -m -G wheel,video,audio,input,storage -s /bin/bash live
 fi
 passwd -d live
+if [ -x /usr/share/aegis/write-os-release ]; then
+  /usr/share/aegis/write-os-release
+fi
 systemctl enable greetd.service
 systemctl enable NetworkManager.service
 systemctl enable aegis-live-setup.service

@@ -7,4 +7,8 @@ export QT_QPA_PLATFORM=wayland
 export GDK_BACKEND=wayland
 export WLR_RENDERER=pixman
 export WLR_NO_HARDWARE_CURSORS=1
+if [ -f /etc/aegis-live ] && [ -z "${AEGIS_ACTION:-}" ] && [ -x /usr/bin/aegis-menu ]; then
+  AEGIS_ACTION=$(/usr/bin/aegis-menu || true)
+  export AEGIS_ACTION
+fi
 exec labwc

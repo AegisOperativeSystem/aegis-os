@@ -1,0 +1,3 @@
+if [ -f /etc/profile.d/aegis.sh ]; then
+  . /etc/profile.d/aegis.sh
+fi
