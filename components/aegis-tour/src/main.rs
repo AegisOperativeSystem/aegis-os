@@ -32,6 +32,7 @@ fn build_ui(app: &Application) {
         .default_width(720)
         .default_height(460)
         .decorated(false)
+        .resizable(false)
         .build();
     window.add_css_class("tour");
 

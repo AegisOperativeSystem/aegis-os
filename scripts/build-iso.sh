@@ -25,7 +25,7 @@ cp -a "${root}/profiles/live" "${work}/profile"
 sed -i "s|file:///var/tmp/aegis-bootstrap|file://${bootstrap}|g" "${work}/profile/pacman.conf"
 
 if [[ "$(id -u)" -eq 0 ]]; then
-  pacman -Sy --noconfirm --needed base-devel sudo rust cargo pkgconf gtk4 gtk4-layer-shell archiso
+  pacman -Sy --noconfirm --needed base-devel sudo rust cargo pkgconf gtk4 archiso
 fi
 
 "${pkgs}/scripts/build-all.sh" "${bootstrap}"

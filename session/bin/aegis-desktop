@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ -f "${HOME}/.config/aegis/xprofile" ]; then
+  # shellcheck disable=SC1091
+  . "${HOME}/.config/aegis/xprofile"
+elif [ -f /etc/vconsole.conf ]; then
+  keymap=$(sed -n 's/^KEYMAP=//p' /etc/vconsole.conf | head -n 1)
+  if [ -n "${keymap}" ]; then
+    setxkbmap "${keymap}"
+  fi
+fi
+if [ -x /usr/bin/feh ]; then
+  feh --bg-fill /usr/share/aegis/background.png &
+else
+  xsetroot -solid '#090d12' &
+fi
+exec openbox

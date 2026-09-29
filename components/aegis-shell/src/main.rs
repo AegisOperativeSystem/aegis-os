@@ -7,7 +7,6 @@ use gtk4::{
     CssProvider, Label, Orientation, ScrolledWindow, SelectionMode,
     STYLE_PROVIDER_PRIORITY_APPLICATION,
 };
-use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::path::Path;
 use std::process::Command;
 
@@ -30,22 +29,12 @@ fn build_ui(app: &Application) {
         .build();
     load_css();
     window.add_css_class("panel");
-    if gtk4_layer_shell::is_supported() {
-        window.init_layer_shell();
-        window.set_layer(Layer::Top);
-        window.set_namespace(Some("aegis-shell"));
-        window.set_anchor(Edge::Top, true);
-        window.set_anchor(Edge::Left, true);
-        window.set_anchor(Edge::Right, true);
-        window.set_keyboard_mode(KeyboardMode::None);
-        window.set_exclusive_zone(32);
-    } else {
-        window.set_default_size(1280, 32);
-    }
+    let (width, _) = monitor_size();
+    window.set_default_size(width, 40);
 
     let bar = Box::new(Orientation::Horizontal, 4);
     bar.add_css_class("panel-box");
-    bar.set_size_request(-1, 32);
+    bar.set_size_request(-1, 40);
     let brand = Label::new(Some("Aegis"));
     brand.add_css_class("brand");
     let apps = Button::with_label("Apps");
@@ -77,7 +66,7 @@ fn build_ui(app: &Application) {
     });
 
     terminal.connect_clicked(|_| spawn(&["foot".to_string()]));
-    logout.connect_clicked(|_| spawn(&["labwc".to_string(), "--exit".to_string()]));
+    logout.connect_clicked(|_| spawn(&["openbox".to_string(), "--exit".to_string()]));
     reboot.connect_clicked(|_| spawn(&["systemctl".to_string(), "reboot".to_string()]));
     power.connect_clicked(|_| spawn(&["systemctl".to_string(), "poweroff".to_string()]));
 
@@ -135,6 +124,17 @@ fn spawn(argv: &[String]) {
         return;
     };
     let _ = Command::new(program).args(args).spawn();
+}
+
+fn monitor_size() -> (i32, i32) {
+    Display::default()
+        .and_then(|display| display.monitors().item(0))
+        .and_then(|item| item.downcast::<gtk4::gdk::Monitor>().ok())
+        .map(|monitor| {
+            let geo = monitor.geometry();
+            (geo.width(), geo.height())
+        })
+        .unwrap_or((1280, 800))
 }
 
 fn load_css() {

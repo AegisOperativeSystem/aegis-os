@@ -9,7 +9,6 @@ use gtk4::{
     CssProvider, FlowBox, Image, Label, Orientation, ScrolledWindow, SelectionMode, Separator,
     STYLE_PROVIDER_PRIORITY_APPLICATION,
 };
-use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::path::Path;
 use std::process::Command;
 
@@ -32,15 +31,6 @@ fn build_ui(app: &Application) {
         .resizable(false)
         .build();
     window.add_css_class("dock-window");
-    if gtk4_layer_shell::is_supported() {
-        window.init_layer_shell();
-        window.set_layer(Layer::Top);
-        window.set_namespace(Some("aegis-dock"));
-        window.set_anchor(Edge::Bottom, true);
-        window.set_margin(Edge::Bottom, 8);
-        window.set_keyboard_mode(KeyboardMode::None);
-        window.auto_exclusive_zone_enable();
-    }
 
     let dock = Box::new(Orientation::Horizontal, 4);
     dock.add_css_class("dock");

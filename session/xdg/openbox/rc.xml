@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_config xmlns="http://openbox.org/3.4/rc">
+  <theme>
+    <name>aegis</name>
+    <titleLayout>CIM</titleLayout>
+    <keepBorder>yes</keepBorder>
+    <animateIconify>no</animateIconify>
+  </theme>
+  <desktops>
+    <number>1</number>
+    <popupTime>0</popupTime>
+  </desktops>
+  <margins>
+    <top>40</top>
+    <bottom>80</bottom>
+    <left>0</left>
+    <right>0</right>
+  </margins>
+  <keyboard>
+    <keybind key="W-Return">
+      <action name="Execute">
+        <command>foot</command>
+      </action>
+    </keybind>
+    <keybind key="W-q">
+      <action name="Close"/>
+    </keybind>
+    <keybind key="A-F4">
+      <action name="Close"/>
+    </keybind>
+  </keyboard>
+  <applications>
+    <application class="org.aegis.Shell">
+      <decor>no</decor>
+      <layer>above</layer>
+      <focus>no</focus>
+      <skip_taskbar>yes</skip_taskbar>
+      <skip_pager>yes</skip_pager>
+      <position force="yes">
+        <x>0</x>
+        <y>0</y>
+      </position>
+    </application>
+    <application class="Aegis-shell">
+      <decor>no</decor>
+      <layer>above</layer>
+      <focus>no</focus>
+      <skip_taskbar>yes</skip_taskbar>
+      <skip_pager>yes</skip_pager>
+      <position force="yes">
+        <x>0</x>
+        <y>0</y>
+      </position>
+    </application>
+    <application class="org.aegis.Dock">
+      <decor>no</decor>
+      <layer>above</layer>
+      <focus>no</focus>
+      <skip_taskbar>yes</skip_taskbar>
+      <skip_pager>yes</skip_pager>
+      <position force="yes">
+        <x>center</x>
+        <y>-12</y>
+      </position>
+    </application>
+    <application class="Aegis-dock">
+      <decor>no</decor>
+      <layer>above</layer>
+      <focus>no</focus>
+      <skip_taskbar>yes</skip_taskbar>
+      <skip_pager>yes</skip_pager>
+      <position force="yes">
+        <x>center</x>
+        <y>-12</y>
+      </position>
+    </application>
+    <application class="org.aegis.Tour">
+      <decor>no</decor>
+      <layer>above</layer>
+      <position force="yes">
+        <x>center</x>
+        <y>center</y>
+      </position>
+    </application>
+    <application class="Aegis-tour">
+      <decor>no</decor>
+      <layer>above</layer>
+      <position force="yes">
+        <x>center</x>
+        <y>center</y>
+      </position>
+    </application>
+  </applications>
+</openbox_config>

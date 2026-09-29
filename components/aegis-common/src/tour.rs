@@ -30,7 +30,7 @@ pub fn tour_slides(live: bool) -> Vec<TourSlide> {
         TourSlide {
             kicker: "Welcome",
             title: "This is Aegis OS",
-            body: "A lightweight Arch desktop. The top bar holds the clock and power controls. The dock at the bottom opens your applications.",
+            body: "The top bar holds the clock and power. The dock at the bottom opens your applications. This welcome appears only the first time you sign in.",
         },
         TourSlide {
             kicker: "Dock",
@@ -47,7 +47,7 @@ pub fn tour_slides(live: bool) -> Vec<TourSlide> {
         slides.push(TourSlide {
             kicker: "Install",
             title: "The installer opens when this tour ends",
-            body: "The live desktop signs in by itself. After this tour, choose Install, Repair, or keep using the live system.",
+            body: "You already chose this session. Install and Repair stay available from the dock if you want them later.",
         });
     } else {
         slides.push(TourSlide {
