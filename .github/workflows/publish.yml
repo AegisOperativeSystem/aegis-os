@@ -1,0 +1,38 @@
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag
+        required: true
+        default: v1.0.7
+      run_id:
+        description: Workflow run that uploaded the aegis-iso artifact
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: aegis-iso
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: iso
+      - name: Pack the VirtualBox archive
+        run: python3 scripts/bundle-vbox.py iso/*.iso -o Aegis-OS-VirtualBox.zip --firmware BIOS
+      - name: Publish the ISO to the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: |
+            iso/*.iso
+            Aegis-OS-VirtualBox.zip
+          generate_release_notes: true
