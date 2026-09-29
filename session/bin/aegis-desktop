@@ -1,13 +1,32 @@
 #!/bin/sh
-if [ -f "${HOME}/.config/aegis/xprofile" ]; then
-  # shellcheck disable=SC1091
-  . "${HOME}/.config/aegis/xprofile"
+layout=
+if [ -f "${HOME}/.config/aegis/keymap" ]; then
+  layout=$(head -n 1 "${HOME}/.config/aegis/keymap")
 elif [ -f /etc/vconsole.conf ]; then
-  keymap=$(sed -n 's/^KEYMAP=//p' /etc/vconsole.conf | head -n 1)
-  if [ -n "${keymap}" ]; then
-    setxkbmap "${keymap}"
-  fi
+  layout=$(sed -n 's/^KEYMAP=//p' /etc/vconsole.conf | head -n 1)
 fi
-export XDG_CURRENT_DESKTOP=GNOME-Flashback:GNOME
-export XDG_SESSION_DESKTOP=gnome-flashback-metacity
-exec gnome-session --session=gnome-flashback-metacity
+if [ -n "${layout}" ]; then
+  export XKB_DEFAULT_LAYOUT="${layout}"
+fi
+
+virt=$(systemd-detect-virt 2>/dev/null || true)
+case "${virt}" in
+  oracle | qemu | kvm | vmware)
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export GALLIUM_DRIVER=llvmpipe
+    export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
+    export MUTTER_DEBUG_DISABLE_HW_CURSORS=1
+    ;;
+esac
+
+export GDK_BACKEND=wayland,x11
+export QT_QPA_PLATFORM=wayland
+export MOZ_ENABLE_WAYLAND=1
+
+if [ "${AEGIS_ACTION:-}" = install ] || [ "${AEGIS_ACTION:-}" = repair ]; then
+  mkdir -p "${HOME}/.config"
+  : >"${HOME}/.config/gnome-tour-done"
+  : >"${HOME}/.config/gnome-welcome-tour"
+fi
+
+exec gnome-session --session=gnome

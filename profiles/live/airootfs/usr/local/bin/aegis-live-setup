@@ -7,6 +7,7 @@ if ! id live >/dev/null 2>&1; then
   useradd -m -G wheel,video,audio,input,storage -s /bin/bash live
 fi
 passwd -d live
+systemctl mask gdm.service
 systemctl enable greetd.service
 systemctl enable NetworkManager.service
 systemctl enable aegis-live-setup.service

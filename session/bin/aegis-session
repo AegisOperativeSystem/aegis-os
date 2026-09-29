@@ -1,14 +1,6 @@
 #!/bin/sh
-export XDG_CURRENT_DESKTOP=Aegis
-export XDG_SESSION_DESKTOP=aegis
-export XDG_SESSION_TYPE=x11
-export GDK_BACKEND=x11
-export QT_QPA_PLATFORM=xcb
-export MOZ_ENABLE_WAYLAND=0
-export FOOT_CONFIG=/usr/share/aegis/foot.ini
 if [ -f /etc/aegis-live ] && [ -z "${AEGIS_ACTION:-}" ] && [ -x /usr/bin/aegis-menu ]; then
   AEGIS_ACTION=$(/usr/bin/aegis-menu || true)
   export AEGIS_ACTION
 fi
-vt="${XDG_VTNR:-1}"
-exec startx /usr/bin/aegis-desktop -- :0 "vt${vt}" -keeptty
+exec /usr/bin/aegis-desktop

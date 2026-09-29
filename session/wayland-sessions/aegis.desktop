@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Aegis
-Comment=Aegis desktop session
-Exec=aegis-session
+Comment=Aegis OS
+Exec=/usr/bin/aegis-desktop
 Type=Application
-DesktopNames=Aegis
+DesktopNames=GNOME

@@ -1,12 +1,6 @@
 #!/bin/sh
 case "${AEGIS_ACTION:-}" in
-  install)
-    exec pkexec aegis-installer
-    ;;
-  repair)
-    exec pkexec aegis-installer --repair
-    ;;
+  install) exec pkexec aegis-installer ;;
+  repair) exec pkexec aegis-installer --repair ;;
 esac
-if [ ! -f "${HOME}/.config/aegis/tour-done" ]; then
-  exec aegis-tour
-fi
+exit 0

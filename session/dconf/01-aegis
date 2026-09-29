@@ -1,23 +1,29 @@
 [org/gnome/desktop/interface]
-gtk-theme='Aegis'
+gtk-theme='Adwaita'
 icon-theme='Adwaita'
 cursor-theme='Adwaita'
 font-name='Noto Sans 11'
 document-font-name='Noto Sans 11'
 monospace-font-name='DejaVu Sans Mono 11'
 color-scheme='prefer-dark'
+accent-color='teal'
 
 [org/gnome/desktop/background]
 picture-uri='file:///usr/share/aegis/background.png'
 picture-uri-dark='file:///usr/share/aegis/background.png'
 picture-options='zoom'
-primary-color='#090d12'
-secondary-color='#090d12'
-
-[org/gnome/desktop/wm/preferences]
-theme='Adwaita'
-button-layout='appmenu:minimize,maximize,close'
-titlebar-font='Noto Sans Bold 11'
+primary-color='#07110f'
+secondary-color='#07110f'
 
 [org/gnome/desktop/screensaver]
 lock-enabled=false
+picture-uri='file:///usr/share/aegis/background.png'
+primary-color='#07110f'
+secondary-color='#07110f'
+
+[org/gnome/desktop/wm/preferences]
+button-layout='appmenu:minimize,maximize,close'
+titlebar-font='Noto Sans Bold 11'
+
+[org/gnome/shell]
+favorite-apps=['aegis-installer.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Console.desktop', 'org.gnome.Settings.desktop', 'org.gnome.TextEditor.desktop']

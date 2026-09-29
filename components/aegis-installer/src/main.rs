@@ -137,12 +137,12 @@ fn build_ui(app: &Application) {
     status.set_wrap(true);
 
     stack.add_named(&language_page(&keymap, &locale), Some("language"));
-    stack.add_named(&timezone_page(&timezone), Some("timezone"));
     stack.add_named(&disk_page(&disk_combo, &filesystem, &swap), Some("disk"));
     stack.add_named(
         &account_page(&hostname, &username, &password, &confirm),
         Some("account"),
     );
+    stack.add_named(&timezone_page(&timezone), Some("timezone"));
     stack.add_named(&summary_page(&summary, &disk_confirm), Some("summary"));
     stack.add_named(&progress_page(&log), Some("progress"));
     root.append(&stack);
@@ -298,8 +298,7 @@ fn progress_page(log: &TextView) -> Box {
 fn advance(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
     let current = *page.borrow();
     match current {
-        Page::Language => show(widgets, page, Page::Timezone),
-        Page::Timezone => show(widgets, page, Page::Disk),
+        Page::Language => show(widgets, page, Page::Disk),
         Page::Disk => {
             if widgets.disk_combo.active_id().is_none() {
                 widgets.status.set_text("Select a disk of at least 8 GiB");
@@ -309,6 +308,14 @@ fn advance(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
             show(widgets, page, Page::Account);
         }
         Page::Account => {
+            if let Err(err) = plan_from(widgets) {
+                widgets.status.set_text(&err);
+                return;
+            }
+            widgets.status.set_text("Ready");
+            show(widgets, page, Page::Timezone);
+        }
+        Page::Timezone => {
             let plan = match plan_from(widgets) {
                 Ok(plan) => plan,
                 Err(err) => {
@@ -345,10 +352,10 @@ fn advance(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
 
 fn retreat(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
     let previous = match *page.borrow() {
-        Page::Timezone => Page::Language,
-        Page::Disk => Page::Timezone,
+        Page::Disk => Page::Language,
         Page::Account => Page::Disk,
-        Page::Summary => Page::Account,
+        Page::Timezone => Page::Account,
+        Page::Summary => Page::Timezone,
         Page::Language | Page::Progress => return,
     };
     show(widgets, page, previous);
@@ -371,9 +378,9 @@ fn show(widgets: &Widgets, page: &Rc<RefCell<Page>>, next: Page) {
 fn step_text(page: Page) -> &'static str {
     match page {
         Page::Language => "1 of 5  ·  Keyboard",
-        Page::Timezone => "2 of 5  ·  Timezone",
-        Page::Disk => "3 of 5  ·  Disk",
-        Page::Account => "4 of 5  ·  Account",
+        Page::Disk => "2 of 5  ·  Disk",
+        Page::Account => "3 of 5  ·  Account",
+        Page::Timezone => "4 of 5  ·  Timezone",
         Page::Summary => "5 of 5  ·  Confirm",
         Page::Progress => "Installing",
     }

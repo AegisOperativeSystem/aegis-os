@@ -70,10 +70,6 @@ pub fn loader_entry(root_uuid: &str, kernel_package: &str) -> String {
     )
 }
 
-pub fn greetd_config() -> &'static str {
-    "[terminal]\nvt = 1\n\n[default_session]\ncommand = \"tuigreet --cmd aegis-session --remember --time\"\nuser = \"greeter\"\n"
-}
-
 pub fn hosts_file(hostname: &str) -> String {
     format!("127.0.0.1 localhost\n::1 localhost\n127.0.1.1 {hostname}.localdomain {hostname}\n")
 }
@@ -256,8 +252,8 @@ pub fn build_actions(
             mode: 0o440,
         },
         Action::Write {
-            path: format!("{mnt}/etc/greetd/config.toml"),
-            contents: greetd_config().to_string(),
+            path: format!("{mnt}/var/lib/AccountsService/users/{}", input.username),
+            contents: "[User]\nSession=aegis\nSystemAccount=false\n".to_string(),
             mode: 0o644,
         },
         Action::Command {
@@ -290,8 +286,8 @@ pub fn build_actions(
             stdin: None,
         },
         Action::Write {
-            path: format!("{mnt}/home/{}/.config/aegis/xprofile", input.username),
-            contents: format!("setxkbmap {}\n", input.keymap),
+            path: format!("{mnt}/home/{}/.config/aegis/keymap", input.username),
+            contents: format!("{}\n", input.keymap),
             mode: 0o644,
         },
         Action::Command {
@@ -300,18 +296,6 @@ pub fn build_actions(
                 "-R",
                 &format!("{}:{}", input.username, input.username),
                 &format!("/home/{}/.config", input.username),
-            ]),
-            stdin: None,
-        },
-        Action::Command {
-            argv: chroot(&[
-                "useradd",
-                "-M",
-                "-d",
-                "/var/lib/greeter",
-                "-s",
-                "/usr/bin/nologin",
-                "greeter",
             ]),
             stdin: None,
         },
@@ -332,7 +316,7 @@ pub fn build_actions(
                 "systemctl",
                 "enable",
                 "NetworkManager.service",
-                "greetd.service",
+                "gdm.service",
             ]),
             stdin: None,
         },
@@ -383,34 +367,24 @@ pub fn default_packages(kernel_package: &str) -> Vec<String> {
         "e2fsprogs".to_string(),
         "btrfs-progs".to_string(),
         "fastfetch".to_string(),
-        "foot".to_string(),
-        "pcmanfm".to_string(),
-        "mousepad".to_string(),
-        "pavucontrol".to_string(),
         "xdg-user-dirs".to_string(),
-        "gnome-flashback".to_string(),
+        "gnome".to_string(),
+        "gnome-tweaks".to_string(),
         "dconf".to_string(),
-        "gnome-themes-extra".to_string(),
-        "xorg-server".to_string(),
-        "xorg-xinit".to_string(),
-        "xorg-setxkbmap".to_string(),
+        "mesa".to_string(),
         "terminus-font".to_string(),
         "ttf-dejavu".to_string(),
         "gtk4".to_string(),
-        "greetd".to_string(),
-        "greetd-tuigreet".to_string(),
         "pipewire".to_string(),
         "pipewire-alsa".to_string(),
         "pipewire-pulse".to_string(),
         "wireplumber".to_string(),
         "polkit".to_string(),
-        "polkit-gnome".to_string(),
         "rtkit".to_string(),
         "noto-fonts".to_string(),
         "adwaita-icon-theme".to_string(),
         "hicolor-icon-theme".to_string(),
         "aegis-session".to_string(),
-        "aegis-tour".to_string(),
         "aegis-pkg".to_string(),
         "aegis-mirrorlist".to_string(),
     ];
