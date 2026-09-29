@@ -82,7 +82,7 @@ cd aegis-os
 sudo ./scripts/build-iso.sh
 ```
 
-GitHub does the same job on tag `v1.0.1` and uploads `out/*.iso` to the release. The image is x86_64 UEFI. There is no BIOS path.
+GitHub does the same job on tag `v1.0.2` and uploads `out/*.iso` to the release. The image is x86_64 UEFI. There is no BIOS path.
 
 The first ISO installs Arch `linux` so it can be built before `linux-aegis` exists. After the kernel package is in the `x86_64` release:
 
