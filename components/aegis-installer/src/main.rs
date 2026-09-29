@@ -1,4 +1,4 @@
-use aegis_common::install::{format_size, install_system, parse_lsblk, BlockDevice};
+use aegis_common::install::{format_size, install_system, parse_lsblk, repair_system, BlockDevice};
 use aegis_common::validate::{Filesystem, PlanInput};
 use aegis_common::LIVE_MARKER;
 use gtk4::gdk::Display;
@@ -34,6 +34,10 @@ fn main() -> glib::ExitCode {
 
 fn build_ui(app: &Application) {
     load_css();
+    if std::env::args().any(|arg| arg == "--repair") {
+        build_repair(app);
+        return;
+    }
     let window = ApplicationWindow::builder()
         .application(app)
         .title("Install Aegis OS")
@@ -505,6 +509,101 @@ fn note(text: &str) -> Label {
     label.set_xalign(0.0);
     label.set_wrap(true);
     label
+}
+
+fn build_repair(app: &Application) {
+    let window = ApplicationWindow::builder()
+        .application(app)
+        .title("Repair Aegis OS")
+        .default_width(640)
+        .default_height(480)
+        .build();
+    let root = Box::new(Orientation::Vertical, 12);
+    root.set_margin_top(24);
+    root.set_margin_bottom(24);
+    root.set_margin_start(24);
+    root.set_margin_end(24);
+    let title = Label::new(Some("Repair an installation"));
+    title.add_css_class("title");
+    title.set_xalign(0.0);
+    root.append(&title);
+    root.append(&note(
+        "Checks the filesystem labeled aegis and reinstalls its bootloader. The disk is not erased.",
+    ));
+    let disks = list_disks();
+    let disk_combo = ComboBoxText::new();
+    for disk in &disks {
+        disk_combo.append(
+            Some(&disk.path),
+            &format!("{} ({})", disk.path, format_size(disk.size_bytes)),
+        );
+    }
+    if !disks.is_empty() {
+        disk_combo.set_active(Some(0));
+    }
+    root.append(&disk_combo);
+    let confirm = Entry::new();
+    root.append(&note("Type the disk name, for example vda."));
+    root.append(&confirm);
+    let log = TextView::new();
+    log.set_editable(false);
+    log.set_monospace(true);
+    root.append(&progress_page(&log));
+    let status = Label::new(Some("Ready"));
+    status.set_xalign(0.0);
+    status.set_wrap(true);
+    root.append(&status);
+    let button = Button::with_label("Repair");
+    button.add_css_class("suggested");
+    button.set_halign(gtk4::Align::End);
+    root.append(&button);
+    window.set_child(Some(&root));
+
+    let combo = disk_combo.clone();
+    let confirm = confirm.clone();
+    let status = status.clone();
+    let log = log.clone();
+    button.connect_clicked(move |button| {
+        let Some(disk) = combo.active_id() else {
+            status.set_text("Select a disk");
+            return;
+        };
+        let expected = disk.rsplit('/').next().unwrap_or_default();
+        if confirm.text().as_str() != expected {
+            status.set_text(&format!("Type {expected} to confirm"));
+            return;
+        }
+        button.set_sensitive(false);
+        status.set_text("Repairing");
+        let (sender, receiver) = mpsc::channel();
+        let disk = disk.to_string();
+        thread::spawn(move || {
+            let result = repair_system(&disk, &mut |line| {
+                let _ = sender.send(line.to_string());
+            });
+            let _ = sender.send(match result {
+                Ok(()) => "Repair finished. Restart and unplug the ISO.".to_string(),
+                Err(err) => format!("Repair failed: {err}"),
+            });
+        });
+        let log = log.clone();
+        let status = status.clone();
+        glib::timeout_add_local(std::time::Duration::from_millis(200), move || {
+            loop {
+                match receiver.try_recv() {
+                    Ok(line) => {
+                        status.set_text(&line);
+                        log.buffer()
+                            .insert(&mut log.buffer().end_iter(), &format!("{line}\n"));
+                    }
+                    Err(TryRecvError::Empty) => break,
+                    Err(TryRecvError::Disconnected) => return glib::ControlFlow::Break,
+                }
+            }
+            glib::ControlFlow::Continue
+        });
+    });
+    window.present();
 }
 
 fn load_css() {

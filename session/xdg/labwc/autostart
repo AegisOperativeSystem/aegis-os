@@ -6,5 +6,5 @@ if [ ! -f "${HOME}/.config/aegis/tour-done" ]; then
   aegis-tour
 fi
 if [ -f /etc/aegis-live ]; then
-  pkexec aegis-installer &
+  aegis-welcome
 fi

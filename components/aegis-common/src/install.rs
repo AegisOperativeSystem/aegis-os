@@ -629,6 +629,184 @@ pub fn write_boot_entry(
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Volume {
+    pub name: String,
+    pub label: String,
+    pub filesystem: String,
+    pub parent: String,
+}
+
+pub fn parse_volumes(output: &str) -> Vec<Volume> {
+    output
+        .lines()
+        .filter_map(|line| {
+            let fields = line
+                .split_whitespace()
+                .filter_map(|field| {
+                    let (key, value) = field.split_once('=')?;
+                    Some((key, value.trim_matches('"')))
+                })
+                .collect::<std::collections::HashMap<_, _>>();
+            Some(Volume {
+                name: fields.get("NAME")?.to_string(),
+                label: fields.get("LABEL").unwrap_or(&"").to_string(),
+                filesystem: fields.get("FSTYPE").unwrap_or(&"").to_string(),
+                parent: fields.get("PKNAME").unwrap_or(&"").to_string(),
+            })
+        })
+        .collect()
+}
+
+pub fn repair_actions(
+    disk: &str,
+    root: &str,
+    filesystem: Filesystem,
+    esp: Option<&str>,
+    firmware: Firmware,
+) -> Result<Vec<Action>, String> {
+    crate::validate::validate_disk(disk)?;
+    if !is_child_partition(disk, root) {
+        return Err("repair root must be a partition of the selected disk".to_string());
+    }
+    let check = match filesystem {
+        Filesystem::Ext4 => vec![
+            "sh".to_string(),
+            "-c".to_string(),
+            "e2fsck -f -y \"$1\"; code=$?; [ \"$code\" -le 1 ]".to_string(),
+            "e2fsck".to_string(),
+            root.to_string(),
+        ],
+        Filesystem::Btrfs => vec!["btrfs".to_string(), "check".to_string(), root.to_string()],
+    };
+    let mut actions = vec![
+        Action::Command {
+            argv: check,
+            stdin: None,
+        },
+        Action::Command {
+            argv: vec![
+                "mkdir".to_string(),
+                "-p".to_string(),
+                MOUNT_POINT.to_string(),
+            ],
+            stdin: None,
+        },
+        Action::Command {
+            argv: vec![
+                "mount".to_string(),
+                root.to_string(),
+                MOUNT_POINT.to_string(),
+            ],
+            stdin: None,
+        },
+    ];
+    match firmware {
+        Firmware::Uefi => {
+            let esp = esp.ok_or_else(|| "this disk has no EFI system partition".to_string())?;
+            if !is_child_partition(disk, esp) {
+                return Err("EFI partition is not on the selected disk".to_string());
+            }
+            actions.push(Action::Command {
+                argv: vec![
+                    "mount".to_string(),
+                    esp.to_string(),
+                    format!("{MOUNT_POINT}/boot"),
+                ],
+                stdin: None,
+            });
+            actions.push(Action::Command {
+                argv: chroot(&["bootctl", "--esp-path=/boot", "install"]),
+                stdin: None,
+            });
+        }
+        Firmware::Bios => {
+            actions.push(Action::Command {
+                argv: vec![
+                    "extlinux".to_string(),
+                    "--install".to_string(),
+                    format!("{MOUNT_POINT}/boot"),
+                ],
+                stdin: None,
+            });
+            actions.push(Action::Command {
+                argv: vec![
+                    "dd".to_string(),
+                    "bs=440".to_string(),
+                    "count=1".to_string(),
+                    "conv=notrunc".to_string(),
+                    "if=/usr/lib/syslinux/bios/mbr.bin".to_string(),
+                    format!("of={disk}"),
+                ],
+                stdin: None,
+            });
+        }
+    }
+    Ok(actions)
+}
+
+fn is_child_partition(disk: &str, node: &str) -> bool {
+    let Some(rest) = node.strip_prefix(disk) else {
+        return false;
+    };
+    let rest = if disk.ends_with(|c: char| c.is_ascii_digit()) {
+        let Some(rest) = rest.strip_prefix('p') else {
+            return false;
+        };
+        rest
+    } else {
+        rest
+    };
+    !rest.is_empty() && rest.chars().all(|c| c.is_ascii_digit())
+}
+
+pub fn repair_system(disk: &str, report: &mut dyn FnMut(&str)) -> Result<(), String> {
+    crate::validate::validate_disk(disk)?;
+    let firmware = if Path::new("/sys/firmware/efi").is_dir() {
+        Firmware::Uefi
+    } else {
+        Firmware::Bios
+    };
+    let output = Command::new("lsblk")
+        .args(["-P", "-o", "NAME,LABEL,FSTYPE,PKNAME"])
+        .output()
+        .map_err(|err| err.to_string())?;
+    if !output.status.success() {
+        return Err(String::from_utf8_lossy(&output.stderr).trim().to_string());
+    }
+    let volumes = parse_volumes(&String::from_utf8_lossy(&output.stdout));
+    let parent = disk.trim_start_matches("/dev/");
+    let root = volumes.iter().find(|volume| {
+        volume.parent == parent
+            && volume.label == "aegis"
+            && matches!(volume.filesystem.as_str(), "ext4" | "btrfs")
+    });
+    let Some(root) = root else {
+        return Err("no Aegis root with label aegis was found on that disk".to_string());
+    };
+    let filesystem = match root.filesystem.as_str() {
+        "btrfs" => Filesystem::Btrfs,
+        _ => Filesystem::Ext4,
+    };
+    let esp = volumes
+        .iter()
+        .find(|volume| volume.parent == parent && volume.filesystem == "vfat");
+    let root_path = format!("/dev/{}", root.name);
+    let actions = repair_actions(
+        disk,
+        &root_path,
+        filesystem,
+        esp.map(|volume| format!("/dev/{}", volume.name)).as_deref(),
+        firmware,
+    )?;
+    let outcome = execute_reporting(&actions, report).and_then(|_| {
+        report("writing the boot entry");
+        write_boot_entry("linux", &root_path, firmware)
+    });
+    let _ = Command::new("umount").args(["-R", MOUNT_POINT]).status();
+    outcome
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -708,6 +886,35 @@ mod tests {
     #[test]
     fn rejects_bad_kernel_names() {
         assert!(build_actions(&sample(), "linux;rm", Firmware::Uefi).is_err());
+    }
+
+    #[test]
+    fn repair_checks_the_labeled_root_and_rewrites_bios_boot() {
+        let rendered = repair_actions(
+            "/dev/vda",
+            "/dev/vda1",
+            Filesystem::Ext4,
+            None,
+            Firmware::Bios,
+        )
+        .unwrap()
+        .iter()
+        .map(|action| action.to_string())
+        .collect::<Vec<_>>()
+        .join("\n");
+        assert!(rendered.contains("e2fsck -f -y"));
+        assert!(rendered.contains("/dev/vda1"));
+        assert!(rendered.contains("extlinux --install /mnt/boot"));
+        assert!(rendered.contains("of=/dev/vda"));
+    }
+
+    #[test]
+    fn volumes_keep_an_empty_label() {
+        let volumes = parse_volumes(
+            "NAME=\"vda1\" LABEL=\"\" FSTYPE=\"vfat\" PKNAME=\"vda\"\nNAME=\"vda2\" LABEL=\"aegis\" FSTYPE=\"ext4\" PKNAME=\"vda\"\n",
+        );
+        assert_eq!(volumes[1].label, "aegis");
+        assert_eq!(volumes[0].filesystem, "vfat");
     }
 
     #[test]

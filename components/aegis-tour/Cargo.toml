@@ -10,6 +10,10 @@ description = "Aegis first-run tour"
 name = "aegis-tour"
 path = "src/main.rs"
 
+[[bin]]
+name = "aegis-welcome"
+path = "src/welcome.rs"
+
 [dependencies]
 aegis-common.workspace = true
 gtk4.workspace = true

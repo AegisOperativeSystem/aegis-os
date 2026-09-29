@@ -47,7 +47,7 @@ pub fn tour_slides(live: bool) -> Vec<TourSlide> {
         slides.push(TourSlide {
             kicker: "Install",
             title: "The installer opens when this tour ends",
-            body: "Choose a whole disk of at least 8 GiB and type its name to confirm. The installer creates a 1 GiB EFI partition and an ext4 or btrfs root. Root login stays locked.",
+            body: "The live desktop signs in by itself. After this tour, choose Install, Repair, or keep using the live system.",
         });
     } else {
         slides.push(TourSlide {
