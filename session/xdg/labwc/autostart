@@ -8,9 +8,16 @@ if [ -x /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ]; then
 fi
 aegis-shell &
 aegis-dock &
-if [ ! -f "${HOME}/.config/aegis/tour-done" ]; then
-  aegis-tour
-fi
-if [ -f /etc/aegis-live ]; then
-  aegis-welcome
-fi
+case "${AEGIS_ACTION:-desktop}" in
+  install)
+    pkexec aegis-installer
+    ;;
+  repair)
+    pkexec aegis-installer --repair
+    ;;
+  *)
+    if [ ! -f "${HOME}/.config/aegis/tour-done" ]; then
+      aegis-tour
+    fi
+    ;;
+esac
