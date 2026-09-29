@@ -1,3 +1,4 @@
+adwaita-icon-theme
 aegis-dock
 aegis-installer
 aegis-mirrorlist
@@ -5,7 +6,6 @@ aegis-pkg
 aegis-session
 aegis-shell
 aegis-tour
-adwaita-icon-theme
 amd-ucode
 arch-install-scripts
 base
@@ -13,14 +13,7 @@ btrfs-progs
 dosfstools
 e2fsprogs
 efibootmgr
-baobab
-evince
-file-roller
-firefox
 foot
-gnome-calculator
-gnome-disk-utility
-gnome-text-editor
 gptfdisk
 greetd
 greetd-tuigreet
@@ -30,16 +23,16 @@ hicolor-icon-theme
 intel-ucode
 labwc
 linux
-loupe
 linux-firmware
 mkinitcpio
 mkinitcpio-archiso
+mousepad
 nano
-nautilus
 networkmanager
 noto-fonts
 parted
 pavucontrol
+pcmanfm
 pipewire
 pipewire-alsa
 pipewire-pulse
@@ -47,7 +40,8 @@ polkit
 polkit-gnome
 sudo
 swaybg
+syslinux
 wireplumber
 xdg-desktop-portal
-xdg-user-dirs
 xdg-desktop-portal-wlr
+xdg-user-dirs

@@ -20,7 +20,7 @@ jobs:
             -w /src \
             -e AEGIS_OS_PATH=/src \
             archlinux:base-devel \
-            bash -lc 'pacman -Syu --noconfirm --needed archiso base-devel rust cargo sudo git pkgconf gtk4 gtk4-layer-shell && ./scripts/build-iso.sh'
+            bash -lc 'pacman -Syu --noconfirm --needed archiso syslinux base-devel rust cargo sudo git pkgconf gtk4 gtk4-layer-shell && ./scripts/build-iso.sh'
       - uses: actions/upload-artifact@v4
         with:
           name: aegis-iso

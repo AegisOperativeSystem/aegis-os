@@ -44,8 +44,24 @@ impl fmt::Display for Action {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Firmware {
+    Uefi,
+    Bios,
+}
+
 pub fn sfdisk_script() -> String {
     format!("label: gpt\nsize=1GiB, type={ESP_TYPE}, name=ESP\ntype={ROOT_TYPE}, name=root\n")
+}
+
+pub fn sfdisk_bios_script() -> String {
+    "label: dos\ntype=83, bootable\n".to_string()
+}
+
+pub fn bios_loader(root_uuid: &str, kernel_package: &str) -> String {
+    format!(
+        "DEFAULT aegis\nPROMPT 0\nTIMEOUT 30\nLABEL aegis\n  LINUX vmlinuz-{kernel_package}\n  APPEND root=UUID={root_uuid} rw quiet\n  INITRD initramfs-{kernel_package}.img\n"
+    )
 }
 
 pub fn loader_entry(root_uuid: &str, kernel_package: &str) -> String {
@@ -66,7 +82,11 @@ pub fn sudoers_dropin() -> &'static str {
     "%wheel ALL=(ALL:ALL) ALL\n"
 }
 
-pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Action>, String> {
+pub fn build_actions(
+    input: &PlanInput,
+    kernel_package: &str,
+    firmware: Firmware,
+) -> Result<Vec<Action>, String> {
     validate_plan(input)?;
     if kernel_package.is_empty()
         || !kernel_package
@@ -75,9 +95,14 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
     {
         return Err("kernel package name is invalid".to_string());
     }
-    let esp = crate::validate::partition_path(&input.disk, 1)?;
-    let root = crate::validate::partition_path(&input.disk, 2)?;
     let mnt = MOUNT_POINT;
+    let root = crate::validate::partition_path(
+        &input.disk,
+        match firmware {
+            Firmware::Uefi => 2,
+            Firmware::Bios => 1,
+        },
+    )?;
     let mkfs_root = match input.filesystem {
         Filesystem::Ext4 => vec![
             "mkfs.ext4".to_string(),
@@ -104,39 +129,62 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
                 "always".to_string(),
                 input.disk.clone(),
             ],
-            stdin: Some(sfdisk_script()),
+            stdin: Some(match firmware {
+                Firmware::Uefi => sfdisk_script(),
+                Firmware::Bios => sfdisk_bios_script(),
+            }),
         },
         Action::Command {
             argv: vec!["udevadm".to_string(), "settle".to_string()],
             stdin: None,
         },
-        Action::Command {
-            argv: vec![
-                "mkfs.fat".to_string(),
-                "-F32".to_string(),
-                "-n".to_string(),
-                "AEGIS_ESP".to_string(),
-                esp.clone(),
-            ],
-            stdin: None,
-        },
-        Action::Command {
-            argv: mkfs_root,
-            stdin: None,
-        },
-        Action::Command {
-            argv: vec!["mount".to_string(), root.clone(), mnt.to_string()],
-            stdin: None,
-        },
-        Action::Command {
-            argv: vec!["mkdir".to_string(), "-p".to_string(), format!("{mnt}/boot")],
-            stdin: None,
-        },
-        Action::Command {
-            argv: vec!["mount".to_string(), esp, format!("{mnt}/boot")],
-            stdin: None,
-        },
     ];
+    if firmware == Firmware::Uefi {
+        let esp = crate::validate::partition_path(&input.disk, 1)?;
+        actions.extend([
+            Action::Command {
+                argv: vec![
+                    "mkfs.fat".to_string(),
+                    "-F32".to_string(),
+                    "-n".to_string(),
+                    "AEGIS_ESP".to_string(),
+                    esp.clone(),
+                ],
+                stdin: None,
+            },
+            Action::Command {
+                argv: mkfs_root,
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["mount".to_string(), root.clone(), mnt.to_string()],
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["mkdir".to_string(), "-p".to_string(), format!("{mnt}/boot")],
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["mount".to_string(), esp, format!("{mnt}/boot")],
+                stdin: None,
+            },
+        ]);
+    } else {
+        actions.extend([
+            Action::Command {
+                argv: mkfs_root,
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["mount".to_string(), root.clone(), mnt.to_string()],
+                stdin: None,
+            },
+            Action::Command {
+                argv: vec!["mkdir".to_string(), "-p".to_string(), format!("{mnt}/boot")],
+                stdin: None,
+            },
+        ]);
+    }
     if input.swap_gib > 0 {
         let swap = format!("{mnt}/swapfile");
         let size = format!("{}G", input.swap_gib);
@@ -279,10 +327,6 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
             stdin: None,
         },
         Action::Command {
-            argv: chroot(&["bootctl", "--esp-path=/boot", "install"]),
-            stdin: None,
-        },
-        Action::Command {
             argv: chroot(&["mkinitcpio", "-P"]),
             stdin: None,
         },
@@ -296,6 +340,35 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
             stdin: None,
         },
     ]);
+    match firmware {
+        Firmware::Uefi => {
+            actions.push(Action::Command {
+                argv: chroot(&["bootctl", "--esp-path=/boot", "install"]),
+                stdin: None,
+            });
+        }
+        Firmware::Bios => {
+            actions.push(Action::Command {
+                argv: vec![
+                    "extlinux".to_string(),
+                    "--install".to_string(),
+                    format!("{mnt}/boot"),
+                ],
+                stdin: None,
+            });
+            actions.push(Action::Command {
+                argv: vec![
+                    "dd".to_string(),
+                    "bs=440".to_string(),
+                    "count=1".to_string(),
+                    "conv=notrunc".to_string(),
+                    "if=/usr/lib/syslinux/bios/mbr.bin".to_string(),
+                    format!("of={}", input.disk),
+                ],
+                stdin: None,
+            });
+        }
+    }
     Ok(actions)
 }
 
@@ -313,15 +386,8 @@ pub fn default_packages(kernel_package: &str) -> Vec<String> {
         "e2fsprogs".to_string(),
         "btrfs-progs".to_string(),
         "foot".to_string(),
-        "firefox".to_string(),
-        "nautilus".to_string(),
-        "gnome-text-editor".to_string(),
-        "loupe".to_string(),
-        "evince".to_string(),
-        "gnome-calculator".to_string(),
-        "gnome-disk-utility".to_string(),
-        "baobab".to_string(),
-        "file-roller".to_string(),
+        "pcmanfm".to_string(),
+        "mousepad".to_string(),
         "pavucontrol".to_string(),
         "xdg-user-dirs".to_string(),
         "labwc".to_string(),
@@ -424,14 +490,26 @@ pub fn install_system(
     kernel_package: &str,
     report: &mut dyn FnMut(&str),
 ) -> Result<(), String> {
-    if !Path::new("/sys/firmware/efi").exists() {
-        return Err("Aegis OS installs on UEFI firmware only".to_string());
-    }
-    let actions = build_actions(input, kernel_package)?;
-    let root = crate::validate::partition_path(&input.disk, 2)?;
+    let firmware = if Path::new("/sys/firmware/efi").is_dir() {
+        Firmware::Uefi
+    } else {
+        Firmware::Bios
+    };
+    report(match firmware {
+        Firmware::Uefi => "firmware uefi",
+        Firmware::Bios => "firmware bios",
+    });
+    let actions = build_actions(input, kernel_package, firmware)?;
+    let root = crate::validate::partition_path(
+        &input.disk,
+        match firmware {
+            Firmware::Uefi => 2,
+            Firmware::Bios => 1,
+        },
+    )?;
     let outcome = execute_reporting(&actions, report).and_then(|_| {
-        report("writing the systemd-boot entry");
-        write_boot_entry(kernel_package, &root)
+        report("writing the boot entry");
+        write_boot_entry(kernel_package, &root, firmware)
     });
     let _ = Command::new("umount").args(["-R", MOUNT_POINT]).status();
     outcome
@@ -524,18 +602,31 @@ fn write_file(path: &str, contents: &str, mode: u32) -> Result<(), String> {
     Ok(())
 }
 
-pub fn write_boot_entry(kernel_package: &str, root_partition: &str) -> Result<(), String> {
+pub fn write_boot_entry(
+    kernel_package: &str,
+    root_partition: &str,
+    firmware: Firmware,
+) -> Result<(), String> {
     let uuid = read_root_uuid(root_partition)?;
-    write_file(
-        &format!("{MOUNT_POINT}/boot/loader/loader.conf"),
-        "default aegis.conf\ntimeout 3\nconsole-mode auto\n",
-        0o644,
-    )?;
-    write_file(
-        &format!("{MOUNT_POINT}/boot/loader/entries/aegis.conf"),
-        &loader_entry(&uuid, kernel_package),
-        0o644,
-    )
+    match firmware {
+        Firmware::Uefi => {
+            write_file(
+                &format!("{MOUNT_POINT}/boot/loader/loader.conf"),
+                "default aegis.conf\ntimeout 3\nconsole-mode auto\n",
+                0o644,
+            )?;
+            write_file(
+                &format!("{MOUNT_POINT}/boot/loader/entries/aegis.conf"),
+                &loader_entry(&uuid, kernel_package),
+                0o644,
+            )
+        }
+        Firmware::Bios => write_file(
+            &format!("{MOUNT_POINT}/boot/syslinux.cfg"),
+            &bios_loader(&uuid, kernel_package),
+            0o644,
+        ),
+    }
 }
 
 #[cfg(test)]
@@ -558,7 +649,7 @@ mod tests {
 
     #[test]
     fn plan_starts_with_gpt_and_hides_password() {
-        let actions = build_actions(&sample(), "linux").unwrap();
+        let actions = build_actions(&sample(), "linux", Firmware::Uefi).unwrap();
         let rendered = actions
             .iter()
             .map(|action| action.to_string())
@@ -582,7 +673,7 @@ mod tests {
         input.swap_gib = 4;
         input.locale = "it_IT.UTF-8".to_string();
         input.keymap = "it".to_string();
-        let actions = build_actions(&input, "linux").unwrap();
+        let actions = build_actions(&input, "linux", Firmware::Uefi).unwrap();
         let rendered = actions
             .iter()
             .map(|action| action.to_string())
@@ -605,7 +696,7 @@ mod tests {
     fn btrfs_plan_uses_mkfs_btrfs() {
         let mut input = sample();
         input.filesystem = Filesystem::Btrfs;
-        let actions = build_actions(&input, "linux-aegis").unwrap();
+        let actions = build_actions(&input, "linux-aegis", Firmware::Uefi).unwrap();
         assert!(actions
             .iter()
             .any(|action| action.to_string().contains("mkfs.btrfs")));
@@ -616,7 +707,28 @@ mod tests {
 
     #[test]
     fn rejects_bad_kernel_names() {
-        assert!(build_actions(&sample(), "linux;rm").is_err());
+        assert!(build_actions(&sample(), "linux;rm", Firmware::Uefi).is_err());
+    }
+
+    #[test]
+    fn bios_plan_installs_syslinux() {
+        let actions = build_actions(&sample(), "linux", Firmware::Bios).unwrap();
+        let rendered = actions
+            .iter()
+            .map(|action| action.to_string())
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(actions.iter().any(|action| matches!(
+            action,
+            Action::Command { stdin: Some(script), .. } if script.contains("label: dos")
+        )));
+        assert!(rendered.contains("extlinux --install /mnt/boot"));
+        assert!(rendered.contains(
+            "dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/bios/mbr.bin of=/dev/vda"
+        ));
+        assert!(rendered.contains("mkfs.ext4 -F -L aegis /dev/vda1"));
+        assert!(!rendered.contains("bootctl"));
+        assert!(!rendered.contains("mkfs.fat"));
     }
 
     #[test]

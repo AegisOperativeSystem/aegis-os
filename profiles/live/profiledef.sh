@@ -8,11 +8,15 @@ iso_application="Aegis OS Live"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="aegis"
 buildmodes=('iso')
-bootmodes=('uefi.systemd-boot')
+bootmodes=(
+  'bios.syslinux.mbr'
+  'bios.syslinux.eltorito'
+  'uefi.systemd-boot'
+)
 arch="x86_64"
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
-airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15')
+airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M')
 kernel_params_x86_64="quiet"
 file_permissions=(
   ["/etc/shadow"]="0:0:400"

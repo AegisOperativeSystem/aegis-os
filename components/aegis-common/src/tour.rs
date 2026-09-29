@@ -35,7 +35,7 @@ pub fn tour_slides(live: bool) -> Vec<TourSlide> {
         TourSlide {
             kicker: "Dock",
             title: "Applications sit in the dock",
-            body: "Firefox, Files, the text editor, the terminal, and Packages are pinned. The grid at the right end opens every installed application.",
+            body: "Files, the text editor, the terminal, and Packages are pinned. The grid at the right end opens every installed application.",
         },
         TourSlide {
             kicker: "Keyboard",

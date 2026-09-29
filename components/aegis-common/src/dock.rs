@@ -9,22 +9,16 @@ pub struct DockFavorite {
 pub fn dock_favorites(live: bool) -> Vec<DockFavorite> {
     let mut favorites = vec![
         DockFavorite {
-            id: "firefox.desktop",
-            label: "Firefox",
-            icon: "web-browser",
-            argv: &["firefox"],
-        },
-        DockFavorite {
-            id: "org.gnome.Nautilus.desktop",
+            id: "pcmanfm.desktop",
             label: "Files",
             icon: "system-file-manager",
-            argv: &["nautilus"],
+            argv: &["pcmanfm"],
         },
         DockFavorite {
-            id: "org.gnome.TextEditor.desktop",
+            id: "mousepad.desktop",
             label: "Text Editor",
-            icon: "text-editor",
-            argv: &["gnome-text-editor"],
+            icon: "accessories-text-editor",
+            argv: &["mousepad"],
         },
         DockFavorite {
             id: "foot.desktop",
@@ -57,8 +51,8 @@ mod tests {
     #[test]
     fn live_dock_pins_the_installer() {
         let favorites = dock_favorites(true);
-        assert_eq!(favorites.len(), 6);
-        assert_eq!(favorites[5].argv, ["pkexec", "aegis-installer"]);
+        assert_eq!(favorites.len(), 5);
+        assert_eq!(favorites[4].argv, ["pkexec", "aegis-installer"]);
     }
 
     #[test]
@@ -67,9 +61,8 @@ mod tests {
         assert_eq!(
             favorites.iter().map(|item| item.id).collect::<Vec<_>>(),
             vec![
-                "firefox.desktop",
-                "org.gnome.Nautilus.desktop",
-                "org.gnome.TextEditor.desktop",
+                "pcmanfm.desktop",
+                "mousepad.desktop",
                 "foot.desktop",
                 "aegis-pkg.desktop",
             ]

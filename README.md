@@ -18,4 +18,4 @@ cargo test -p aegis-common
 sudo ./scripts/build-iso.sh
 ```
 
-Tag `v1.0.3` to build the ISO and upload it to GitHub Releases. x86_64 UEFI only. The live session starts the panel, the dock, and a first-run tour.
+Tag `v1.0.4` to build the ISO and upload it to GitHub Releases. x86_64 UEFI only. The live session starts the panel, the dock, and a first-run tour.

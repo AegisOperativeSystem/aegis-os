@@ -1,4 +1,4 @@
-use aegis_common::install::build_actions;
+use aegis_common::install::{build_actions, Firmware};
 use aegis_common::validate::{Filesystem, PlanInput};
 
 fn main() {
@@ -26,7 +26,11 @@ fn main() {
             .and_then(|value| value.parse().ok())
             .unwrap_or(0),
     };
-    match build_actions(&input, &kernel) {
+    let firmware = match args.next().as_deref() {
+        Some("bios") => Firmware::Bios,
+        _ => Firmware::Uefi,
+    };
+    match build_actions(&input, &kernel, firmware) {
         Ok(actions) => {
             for action in actions {
                 println!("{action}");

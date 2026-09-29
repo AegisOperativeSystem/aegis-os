@@ -18,9 +18,10 @@ use std::thread;
 const STYLE: &str = r#"
 window { background: #101216; color: #e7ecf3; }
 .title { font-size: 22px; font-weight: 700; }
+.steps { color: #7dd3c0; font-weight: 700; letter-spacing: 0.04em; }
 .muted { color: #8b95a7; }
 entry, combobox { min-height: 34px; }
-button.suggested { background: #7dd3c0; color: #101216; }
+button.suggested { background: #7dd3c0; color: #101216; font-weight: 700; }
 "#;
 
 fn main() -> glib::ExitCode {
@@ -47,7 +48,11 @@ fn build_ui(app: &Application) {
     let title = Label::new(Some("Install Aegis OS"));
     title.add_css_class("title");
     title.set_xalign(0.0);
+    let steps = Label::new(Some(step_text(Page::Disk)));
+    steps.add_css_class("steps");
+    steps.set_xalign(0.0);
     root.append(&title);
+    root.append(&steps);
 
     if !Path::new(LIVE_MARKER).exists() && std::env::args().all(|arg| arg != "--force") {
         let message = Label::new(Some(
@@ -170,6 +175,7 @@ fn build_ui(app: &Application) {
         log: log.clone(),
         status: status.clone(),
         next: next.clone(),
+        steps: steps.clone(),
     };
     let forward = widgets.clone();
     let backward = widgets.clone();
@@ -207,13 +213,14 @@ struct Widgets {
     log: TextView,
     status: Label,
     next: Button,
+    steps: Label,
 }
 
 fn disk_page(disks: &ComboBoxText, filesystem: &ComboBoxText, swap: &ComboBoxText) -> Box {
     let page = form();
     page.append(&heading("Target disk"));
     page.append(&note(
-        "The selected disk is erased. Aegis OS requires UEFI and creates a 1 GiB EFI system partition plus a root partition.",
+        "The selected disk is erased. UEFI gets a 1 GiB EFI partition and systemd-boot. BIOS, including a default VirtualBox VM, gets one bootable partition and Syslinux. Attach this ISO to the virtual optical drive before powering on.",
     ));
     page.append(disks);
     page.append(&heading("Filesystem"));
@@ -298,7 +305,11 @@ fn advance(widgets: &Widgets, page: &Rc<RefCell<Page>>) {
                 Page::System
             } else {
                 if let Ok(plan) = plan_from(widgets) {
-                    widgets.summary.set_text(&describe(&plan));
+                    widgets.summary.set_text(&format!(
+                        "{}\nFirmware {}",
+                        describe(&plan),
+                        firmware_name()
+                    ));
                 }
                 Page::Summary
             };
@@ -342,7 +353,26 @@ fn show(widgets: &Widgets, page: &Rc<RefCell<Page>>, next: Page) {
         Page::Progress => "progress",
     };
     widgets.stack.set_visible_child_name(name);
+    widgets.steps.set_text(step_text(next));
     *page.borrow_mut() = next;
+}
+
+fn step_text(page: Page) -> &'static str {
+    match page {
+        Page::Disk => "1 of 4  ·  Disk",
+        Page::Account => "2 of 4  ·  Account",
+        Page::System => "3 of 4  ·  Region",
+        Page::Summary => "4 of 4  ·  Confirm",
+        Page::Progress => "Installing",
+    }
+}
+
+fn firmware_name() -> &'static str {
+    if Path::new("/sys/firmware/efi").is_dir() {
+        "UEFI"
+    } else {
+        "BIOS"
+    }
 }
 
 fn start_install(widgets: &Widgets, plan: PlanInput) {
