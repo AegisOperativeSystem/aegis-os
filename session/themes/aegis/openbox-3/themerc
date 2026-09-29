@@ -1,16 +1,20 @@
-border.width: 1
-padding.width: 8
-padding.height: 4
-window.active.border.color: #243040
-window.inactive.border.color: #1a1f27
-window.active.title.bg.color: #101216
-window.inactive.title.bg.color: #101216
-window.active.label.text.color: #e7ecf3
-window.inactive.label.text.color: #8b95a7
+border.width: 2
+padding.width: 12
+padding.height: 6
+window.active.border.color: #3ee0c5
+window.inactive.border.color: #243041
+window.active.title.bg.color: #121820
+window.inactive.title.bg.color: #121820
+window.active.label.text.color: #f3f6fb
+window.inactive.label.text.color: #a7b3c4
 window.active.title.bg: Flat Solid
 window.inactive.title.bg: Flat Solid
-menu.items.bg.color: #101216
-menu.items.text.color: #e7ecf3
-menu.items.active.bg.color: #1c2430
-osd.bg.color: #101216
-osd.label.text.color: #e7ecf3
+window.active.button.unpressed.bg.color: #121820
+window.inactive.button.unpressed.bg.color: #121820
+menu.items.bg.color: #121820
+menu.items.text.color: #f3f6fb
+menu.items.active.bg.color: #1c3a36
+menu.items.active.text.color: #f3f6fb
+osd.bg.color: #121820
+osd.label.text.color: #f3f6fb
+osd.border.color: #3ee0c5

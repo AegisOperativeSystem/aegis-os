@@ -1,0 +1,27 @@
+name: bundle-vbox
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag whose ISO should be packed
+        required: true
+        default: v1.0.5
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pack the ISO into the VirtualBox archive
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          gh release download "${{ inputs.tag }}" --repo "${{ github.repository }}" --pattern "*.iso" --dir out
+          python3 scripts/bundle-vbox.py out/*.iso -o out/Aegis-OS-VirtualBox.zip --firmware BIOS
+          gh release upload "${{ inputs.tag }}" out/Aegis-OS-VirtualBox.zip --repo "${{ github.repository }}" --clobber

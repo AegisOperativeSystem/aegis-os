@@ -1,5 +1,5 @@
 #!/bin/sh
-swaybg -c '#101216' >/dev/null 2>&1 &
+swaybg -i /usr/share/aegis/background.png -m fill >/dev/null 2>&1 &
 aegis-shell &
 aegis-dock &
 if [ ! -f "${HOME}/.config/aegis/tour-done" ]; then

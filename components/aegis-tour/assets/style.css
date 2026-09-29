@@ -1,58 +1,61 @@
 window {
-  background-color: #101216;
-  color: #e7ecf3;
+  background-color: #121820;
+  color: #f3f6fb;
   font-family: "Noto Sans", sans-serif;
 }
 
 .tour {
-  background-color: #101216;
+  background-color: #121820;
 }
 
 .kicker {
-  color: #7dd3c0;
-  font-size: 13px;
-  font-weight: 650;
+  color: #3ee0c5;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
 }
 
 .title {
-  font-size: 32px;
-  font-weight: 650;
+  font-size: 34px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
 }
 
 .body {
-  color: #9aa3b5;
+  color: #a7b3c4;
   font-size: 16px;
 }
 
 .dots {
-  color: #7dd3c0;
-  font-size: 18px;
+  color: #3ee0c5;
+  font-size: 16px;
   letter-spacing: 6px;
 }
 
 button {
   background-color: transparent;
-  border: 1px solid #2c333e;
-  border-radius: 999px;
-  color: #e7ecf3;
+  border: 1px solid #243041;
+  border-radius: 12px;
+  color: #f3f6fb;
   min-height: 44px;
   min-width: 96px;
-  padding: 8px 20px;
+  padding: 8px 18px;
 }
 
 button:hover {
-  background-color: #181b21;
+  background-color: rgba(62, 224, 197, 0.1);
+  border-color: rgba(62, 224, 197, 0.45);
 }
 
 button.suggested {
-  background-color: #7dd3c0;
-  border-color: #7dd3c0;
-  color: #10211e;
-  font-weight: 650;
+  background-color: #3ee0c5;
+  border-color: #3ee0c5;
+  color: #06211c;
+  font-weight: 750;
 }
 
 button.suggested:hover {
-  background-color: #8fdecd;
+  background-color: #67ead4;
 }
 
 button:disabled {

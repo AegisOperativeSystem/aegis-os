@@ -16,12 +16,12 @@ use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 
 const STYLE: &str = r#"
-window { background: #101216; color: #e7ecf3; }
-.title { font-size: 22px; font-weight: 700; }
-.steps { color: #7dd3c0; font-weight: 700; letter-spacing: 0.04em; }
-.muted { color: #8b95a7; }
-entry, combobox { min-height: 34px; }
-button.suggested { background: #7dd3c0; color: #101216; font-weight: 700; }
+window { background: #121820; color: #f3f6fb; }
+.title { font-size: 28px; font-weight: 750; }
+.steps { color: #3ee0c5; font-weight: 750; letter-spacing: 0.08em; }
+.muted { color: #a7b3c4; }
+entry, combobox { min-height: 36px; background: #090d12; color: #f3f6fb; border-radius: 8px; }
+button.suggested { background: #3ee0c5; color: #06211c; font-weight: 750; border-radius: 10px; }
 "#;
 
 fn main() -> glib::ExitCode {

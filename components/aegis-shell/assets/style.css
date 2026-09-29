@@ -1,61 +1,63 @@
 window {
-  background-color: #101216;
-  color: #e7ecf3;
+  background-color: #090d12;
+  color: #f3f6fb;
   font-family: "Noto Sans", sans-serif;
   font-size: 13px;
 }
 
-.panel {
-  background-color: #101216;
+.panel,
+.panel-box {
+  background-color: #121820;
 }
 
 .panel-box {
-  background-color: #101216;
-  border-bottom: 1px solid #243040;
+  border-bottom: 1px solid #243041;
 }
 
 button {
   background: transparent;
-  color: #e7ecf3;
+  color: #f3f6fb;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 2px 10px;
   min-height: 24px;
 }
 
 button:hover {
-  background-color: #1c2430;
+  background-color: rgba(62, 224, 197, 0.14);
 }
 
 button.danger:hover {
-  background-color: #3a2024;
-  color: #f07178;
+  background-color: rgba(255, 139, 139, 0.16);
+  color: #ff8b8b;
 }
 
 .clock {
-  color: #c5d0de;
+  color: #d5deea;
   padding: 0 12px;
+  font-weight: 650;
   font-feature-settings: "tnum";
 }
 
 .brand {
-  color: #7dd3c0;
-  padding-left: 12px;
-  font-weight: 600;
+  color: #3ee0c5;
+  padding-left: 14px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
 }
 
 entry, textview, combobox {
-  background-color: #161b22;
-  color: #e7ecf3;
-  border: 1px solid #243040;
-  border-radius: 6px;
+  background-color: #090d12;
+  color: #f3f6fb;
+  border: 1px solid #243041;
+  border-radius: 8px;
 }
 
 label.title {
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 label.muted {
-  color: #8b95a7;
+  color: #a7b3c4;
 }

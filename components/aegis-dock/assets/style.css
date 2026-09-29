@@ -3,54 +3,58 @@ window.dock-window {
 }
 
 .dock {
-  background-color: rgba(24, 27, 33, 0.94);
-  border: 1px solid rgba(231, 236, 243, 0.14);
-  border-radius: 24px;
-  padding: 8px;
+  background-color: rgba(18, 24, 32, 0.92);
+  border: 1px solid rgba(62, 224, 197, 0.28);
+  border-radius: 22px;
+  padding: 6px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
 .dock button {
-  background: transparent;
+  background: rgba(243, 246, 251, 0.04);
   border: none;
   border-radius: 16px;
-  color: #e7ecf3;
-  min-width: 48px;
-  min-height: 48px;
-  padding: 4px;
+  color: #f3f6fb;
+  min-width: 52px;
+  min-height: 52px;
+  padding: 6px;
 }
 
 .dock button:hover {
-  background-color: rgba(125, 211, 192, 0.18);
+  background-color: rgba(62, 224, 197, 0.22);
 }
 
 .dock button:active {
-  background-color: rgba(125, 211, 192, 0.28);
+  background-color: rgba(62, 224, 197, 0.34);
 }
 
 .dock separator {
-  background-color: rgba(231, 236, 243, 0.18);
-  margin: 8px 4px;
+  background-color: rgba(62, 224, 197, 0.35);
+  margin: 10px 6px;
   min-width: 1px;
 }
 
 .apps {
-  background-color: #101216;
-  color: #e7ecf3;
+  background-color: #121820;
+  color: #f3f6fb;
+  border-radius: 18px;
 }
 
 .apps button {
-  background: transparent;
-  border: none;
+  background: rgba(243, 246, 251, 0.04);
+  border: 1px solid transparent;
   border-radius: 16px;
-  color: #e7ecf3;
-  padding: 8px;
+  color: #f3f6fb;
+  padding: 10px;
 }
 
 .apps button:hover {
-  background-color: #1c2430;
+  background-color: rgba(62, 224, 197, 0.16);
+  border-color: rgba(62, 224, 197, 0.4);
 }
 
 .app-name {
-  color: #9aa3b5;
+  color: #d5deea;
   font-size: 12px;
+  font-weight: 650;
 }
