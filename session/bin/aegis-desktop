@@ -8,9 +8,6 @@ elif [ -f /etc/vconsole.conf ]; then
     setxkbmap "${keymap}"
   fi
 fi
-if [ -x /usr/bin/feh ]; then
-  feh --bg-fill /usr/share/aegis/background.png &
-else
-  xsetroot -solid '#090d12' &
-fi
-exec openbox
+export XDG_CURRENT_DESKTOP=GNOME-Flashback:GNOME
+export XDG_SESSION_DESKTOP=gnome-flashback-metacity
+exec gnome-session --session=gnome-flashback-metacity

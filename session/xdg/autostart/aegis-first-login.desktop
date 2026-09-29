@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Aegis welcome
+Comment=First sign-in tour
+Exec=/usr/bin/aegis-first-login
+X-GNOME-Autostart-enabled=true
+OnlyShowIn=GNOME;GNOME-Flashback;
+NoDisplay=true

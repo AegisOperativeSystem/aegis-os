@@ -1,4 +1,4 @@
-use aegis_common::tour::{mark_tour_done, tour_slides};
+use aegis_common::tour::{mark_tour_done, tour_is_done, tour_slides};
 use aegis_common::LIVE_MARKER;
 use gtk4::gdk::Display;
 use gtk4::glib;
@@ -14,6 +14,11 @@ use std::rc::Rc;
 const STYLE: &str = include_str!("../assets/style.css");
 
 fn main() -> glib::ExitCode {
+    if let Some(home) = std::env::var_os("HOME") {
+        if tour_is_done(std::path::Path::new(&home)) {
+            return glib::ExitCode::SUCCESS;
+        }
+    }
     let app = Application::builder()
         .application_id("org.aegis.Tour")
         .build();

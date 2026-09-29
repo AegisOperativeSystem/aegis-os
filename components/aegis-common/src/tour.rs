@@ -30,7 +30,7 @@ pub fn tour_slides(live: bool) -> Vec<TourSlide> {
         TourSlide {
             kicker: "Welcome",
             title: "This is Aegis OS",
-            body: "The top bar holds the clock and power. The dock at the bottom opens your applications. This welcome appears only the first time you sign in.",
+            body: "The top bar is the GNOME panel, restyled for Aegis. This welcome appears only the first time you sign in.",
         },
         TourSlide {
             kicker: "Dock",

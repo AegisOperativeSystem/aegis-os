@@ -1,10 +1,8 @@
 adwaita-icon-theme
-aegis-dock
 aegis-installer
 aegis-mirrorlist
 aegis-pkg
 aegis-session
-aegis-shell
 aegis-tour
 amd-ucode
 arch-install-scripts
@@ -22,7 +20,9 @@ greetd-tuigreet
 gtk4
 hicolor-icon-theme
 intel-ucode
-openbox
+dconf
+gnome-flashback
+gnome-themes-extra
 linux
 linux-firmware
 mkinitcpio
@@ -41,7 +41,6 @@ polkit
 polkit-gnome
 rtkit
 sudo
-feh
 xorg-server
 xorg-setxkbmap
 xorg-xinit

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Aegis
+Comment=Aegis desktop theme
+
+[X-GNOME-Metatheme]
+GtkTheme=Aegis
+MetacityTheme=Adwaita
+IconTheme=Adwaita
+CursorTheme=Adwaita
+ButtonLayout=appmenu:minimize,maximize,close

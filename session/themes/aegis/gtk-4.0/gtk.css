@@ -1,0 +1,28 @@
+window {
+  background-color: #121820;
+  color: #f3f6fb;
+}
+
+headerbar {
+  background-color: #090d12;
+  color: #f3f6fb;
+}
+
+button {
+  background-color: #1a2330;
+  color: #f3f6fb;
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+
+button.suggested-action {
+  background-color: #3ee0c5;
+  color: #06211c;
+}
+
+entry,
+textview {
+  background-color: #090d12;
+  color: #f3f6fb;
+  border-radius: 8px;
+}
