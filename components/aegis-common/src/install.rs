@@ -244,7 +244,7 @@ pub fn build_actions(input: &PlanInput, kernel_package: &str) -> Result<Vec<Acti
         Action::Write {
             path: format!("{mnt}/home/{}/.config/labwc/environment", input.username),
             contents: format!(
-                "XKB_DEFAULT_LAYOUT={}\nXDG_CURRENT_DESKTOP=Aegis\n",
+                "XKB_DEFAULT_LAYOUT={}\nXDG_CURRENT_DESKTOP=Aegis\nFOOT_CONFIG=/usr/share/aegis/foot.ini\n",
                 input.keymap
             ),
             mode: 0o644,

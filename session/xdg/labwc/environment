@@ -1,2 +1,3 @@
 XKB_DEFAULT_LAYOUT=us
 XDG_CURRENT_DESKTOP=Aegis
+FOOT_CONFIG=/usr/share/aegis/foot.ini

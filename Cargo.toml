@@ -11,7 +11,7 @@ members = [
 default-members = ["components/aegis-common"]
 
 [workspace.package]
-version = "1.0.2"
+version = "1.0.3"
 edition = "2021"
 license = "GPL-3.0-only"
 repository = "https://github.com/AegisOperativeSystem/aegis-os"
