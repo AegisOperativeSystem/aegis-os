@@ -379,7 +379,12 @@ fn step_text(page: Page) -> &'static str {
     }
 }
 
-fn detect_region(locale: &ComboBoxText, keymap: &ComboBoxText, timezone: &ComboBoxText, status: &Label) {
+fn detect_region(
+    locale: &ComboBoxText,
+    keymap: &ComboBoxText,
+    timezone: &ComboBoxText,
+    status: &Label,
+) {
     let locale = locale.clone();
     let keymap = keymap.clone();
     let timezone = timezone.clone();
