@@ -389,33 +389,39 @@ fn detect_region(
     let keymap = keymap.clone();
     let timezone = timezone.clone();
     let status = status.clone();
+    let (sender, receiver) = mpsc::channel();
     thread::spawn(move || {
-        let Some(guess) = aegis_common::region::detect_region() else {
-            glib::idle_add_once(move || {
-                if status.text().as_str() == "Detecting keyboard and language" {
-                    status.set_text("Choose a keyboard and a language");
-                }
-            });
-            return;
+        let _ = sender.send(aegis_common::region::detect_region());
+    });
+    glib::timeout_add_local(std::time::Duration::from_millis(200), move || {
+        let guess = match receiver.try_recv() {
+            Ok(guess) => guess,
+            Err(TryRecvError::Empty) => return glib::ControlFlow::Continue,
+            Err(TryRecvError::Disconnected) => return glib::ControlFlow::Break,
         };
-        glib::idle_add_once(move || {
-            if keymap.active_id().as_deref() == Some("us") {
-                keymap.set_active_id(Some(&guess.keymap));
-            }
-            if locale.active_id().as_deref() == Some("en_US.UTF-8") {
-                locale.set_active_id(Some(&guess.locale));
-            }
-            if timezone.active_id().as_deref() == Some("UTC") {
-                let id = guess.timezone.clone();
-                if !timezone.set_active_id(Some(&id)) {
-                    timezone.append(Some(&id), &id);
-                    timezone.set_active_id(Some(&id));
-                }
-            }
+        let Some(guess) = guess else {
             if status.text().as_str() == "Detecting keyboard and language" {
-                status.set_text(&format!("Detected {} · {}", guess.keymap, guess.locale));
+                status.set_text("Choose a keyboard and a language");
             }
-        });
+            return glib::ControlFlow::Break;
+        };
+        if keymap.active_id().as_deref() == Some("us") {
+            keymap.set_active_id(Some(&guess.keymap));
+        }
+        if locale.active_id().as_deref() == Some("en_US.UTF-8") {
+            locale.set_active_id(Some(&guess.locale));
+        }
+        if timezone.active_id().as_deref() == Some("UTC") {
+            let id = guess.timezone.clone();
+            if !timezone.set_active_id(Some(&id)) {
+                timezone.append(Some(&id), &id);
+                timezone.set_active_id(Some(&id));
+            }
+        }
+        if status.text().as_str() == "Detecting keyboard and language" {
+            status.set_text(&format!("Detected {} · {}", guess.keymap, guess.locale));
+        }
+        glib::ControlFlow::Break
     });
 }
 
