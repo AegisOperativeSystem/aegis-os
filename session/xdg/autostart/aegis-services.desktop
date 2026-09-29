@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Aegis services
+Exec=/usr/bin/aegis-services
+OnlyShowIn=GNOME;GNOME-Flashback;
+NoDisplay=true
+X-GNOME-Autostart-Phase=Initialization

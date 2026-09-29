@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "aegis-common"
-version = "1.0.13"
+version = "1.0.14"
 
 [[package]]
 name = "aegis-dock"
-version = "1.0.13"
+version = "1.0.14"
 dependencies = [
  "aegis-common",
  "gtk4",
@@ -16,7 +16,7 @@ dependencies = [
 
 [[package]]
 name = "aegis-installer"
-version = "1.0.13"
+version = "1.0.14"
 dependencies = [
  "aegis-common",
  "gtk4",
@@ -24,7 +24,7 @@ dependencies = [
 
 [[package]]
 name = "aegis-pkg"
-version = "1.0.13"
+version = "1.0.14"
 dependencies = [
  "aegis-common",
  "gtk4",
@@ -32,7 +32,7 @@ dependencies = [
 
 [[package]]
 name = "aegis-shell"
-version = "1.0.13"
+version = "1.0.14"
 dependencies = [
  "aegis-common",
  "gtk4",
@@ -40,7 +40,7 @@ dependencies = [
 
 [[package]]
 name = "aegis-tour"
-version = "1.0.13"
+version = "1.0.14"
 dependencies = [
  "aegis-common",
  "gtk4",
